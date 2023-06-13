@@ -1,0 +1,44 @@
+package WebService::NASA::Schema;
+
+# ABSTRACT: JSON Schema for WebService::NASA
+
+use v5.20.0;
+use warnings;
+our $VERSION = '0.1';
+
+use parent 'Exporter';
+our @EXPORT_OK = qw(get_nasa_schema);
+
+sub get_nasa_schema () {
+    return [% schema %];
+}
+
+1;
+
+__END__
+
+=head1 SYNOPSIS
+
+    use WebService::NASA::Schema qw(get_nasa_schema);
+
+    my $schema = get_nasa_schema();
+
+=head1 DESCRIPTION
+
+This module provides a function that returns the OpenAPI schema for NASA'S public APIs.
+
+=head1 FUNCTIONS
+
+All functions exported on demand.
+
+=head2 get_nasa_schema
+
+    my $schema = get_nasa_schema();
+
+Returns as hashref the OpenAPI schema for NASA'S public APIs.
+
+=head1 SCHEMA
+
+The full schema is defined as:
+
+[% raw_yaml %]
