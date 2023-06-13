@@ -299,7 +299,8 @@ current versions of the API. If False If HTTP Request
                         200 => {
                             content => {
                                 'image/png' => {
-                                    schema => {
+                                    example => 'pretend this is binary content',
+                                    schema  => {
                                         format => 'binary',
                                         type   => 'string',
                                     },
@@ -436,6 +437,7 @@ The full schema is defined as:
                   schema:
                     type: string
                     format: binary
+                  example: pretend this is binary content
             '400':
               description: Bad request
             '403':

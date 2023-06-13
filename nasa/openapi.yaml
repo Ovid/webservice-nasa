@@ -55,6 +55,7 @@ paths:
               schema:
                 type: string
                 format: binary
+              example: pretend this is binary content
         '400':
           description: Bad request
         '403':

@@ -88,6 +88,7 @@ method _write_test_for_method( $method_name, $endpoint ) {
     my $parameters = $endpoint->{parameters};
 
     my $response_example;
+    
     walk sub {
         return unless 'example' eq $_;
         $response_example = $Data::Walk::container->{example};
@@ -98,6 +99,17 @@ method _write_test_for_method( $method_name, $endpoint ) {
         return;
     }
 
+    # Currenty, I don't know of any NASA APIs that return anything other than
+    # a single content type. However, the OpenAPI spec allows for multiple
+    # content types, so this is fragile. Hence, we warn.
+    my @content_types =  keys $endpoint->{full}{responses}{200}{content}->%*;
+    if ( @content_types > 1 ) {
+        my $content_types = join ', ', @content_types;
+        warn "Multiple content types for $path: $content_types";
+        return;
+    }
+    my $content_type = $content_types[0];
+
     # Print the template results to STDOUT
     my $template = $self->_template;
 
@@ -105,14 +117,15 @@ method _write_test_for_method( $method_name, $endpoint ) {
     # attacks. However, that causes the code to think the response is a string
     # and not JSON. I have not yet debugged why, so we are using Cpanel::JSON::XS
     # instead.
-    my $json = encode_json($response_example);
+    my $body = ref $response_example ? encode_json($response_example) : $response_example;
     $template->process(
         $self->_load_template('test_file.tt'),
         {
             method            => $method_name,
             expected_response => $self->_perl_to_string($response_example),
-            body              => $json,
-            content_length    => length($json),
+            body              => $body,
+            content_type      => $content_type,
+            content_length    => length($body),
             parameters        => $parameters,
         },
         \my $output
