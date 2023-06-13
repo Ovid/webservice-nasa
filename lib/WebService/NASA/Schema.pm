@@ -90,7 +90,7 @@ is primarily to support the use of the imagery endpoint.
                         },
                         {
                             '$ref'   => '#/components/parameters/ImageDate',
-                            example  => '2018-01-01',
+                            example  => '2018-02-04',
                             required => 1,
                         },
                         {
@@ -102,6 +102,17 @@ is primarily to support the use of the imagery endpoint.
                         200 => {
                             content => {
                                 'application/json' => {
+                                    example => {
+                                        date     => '2014-02-04T03:30:01.210000',
+                                        id       => 'LANDSAT/LC08/C01/T1_SR/LC08_127059_20140204',
+                                        resource => {
+                                            dataset => 'LANDSAT/LC08/C01/T1_SR',
+                                            planet  => 'earth',
+                                        },
+                                        service_version => 'v5000',
+                                        url             =>
+                                          'https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/ea0061d06542c151df676804213b0e32-e13a44f7bfe19cc2a7f5c23a20921213:getPixels',
+                                    },
                                     schema => {
                                         type => 'object',
                                     },
@@ -311,7 +322,7 @@ The full schema is defined as:
             - $ref: '#/components/parameters/Dimensions'
             - $ref: '#/components/parameters/ImageDate'
               required: true
-              example: 2018-01-01
+              example: 2018-02-04
             - $ref: '#/components/parameters/ApiKey'
               required: true
           responses:
@@ -321,6 +332,7 @@ The full schema is defined as:
                 application/json:
                   schema:
                     type: object
+                  example: {"date":"2014-02-04T03:30:01.210000","id":"LANDSAT/LC08/C01/T1_SR/LC08_127059_20140204","resource":{"dataset":"LANDSAT/LC08/C01/T1_SR","planet":"earth"},"service_version":"v5000","url":"https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/ea0061d06542c151df676804213b0e32-e13a44f7bfe19cc2a7f5c23a20921213:getPixels"}
             '400':
               description: Bad request
             '403':

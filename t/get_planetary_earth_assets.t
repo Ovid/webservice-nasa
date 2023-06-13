@@ -16,7 +16,7 @@ if ( $default_response =~ /X-Ratelimit-Remaining: (\d+)/ ) {
     $limit_remaining = $1;
 }
 
-subtest 'Flight data is available' => sub {
+subtest 'Validate Response via OpenAPI' => sub {
     set_response( default() );
     my $response = $nasa->get_planetary_earth_assets(
         lon  => 100.75,
