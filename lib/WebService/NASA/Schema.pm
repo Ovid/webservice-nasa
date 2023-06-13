@@ -13,14 +13,6 @@ sub get_nasa_schema () {
     return {
         components => {
             parameters => {
-                ApiKey => {
-                    description => 'Your API Key',
-                    in          => 'query',
-                    name        => 'api_key',
-                    schema      => {
-                        type => 'string',
-                    },
-                },
                 Dimensions => {
                     description => 'Width and height of image in degrees',
                     in          => 'query',
@@ -53,6 +45,13 @@ sub get_nasa_schema () {
                     schema      => {
                         type => 'number',
                     },
+                },
+            },
+            securitySchemes => {
+                api_key => {
+                    in   => 'query',
+                    name => 'api_key',
+                    type => 'apiKey',
                 },
             },
         },
@@ -93,10 +92,6 @@ is primarily to support the use of the imagery endpoint.
                             example  => '2018-02-04',
                             required => 1,
                         },
-                        {
-                            '$ref'   => '#/components/parameters/ApiKey',
-                            required => 1,
-                        },
                     ],
                     responses => {
                         200 => {
@@ -127,6 +122,11 @@ is primarily to support the use of the imagery endpoint.
                             description => 'API key is invalid or missing',
                         },
                     },
+                    security => [
+                        {
+                            api_key => [],
+                        },
+                    ],
                     'x-name' => 'Earth Imagery Assets',
                 },
             },
@@ -175,10 +175,6 @@ current versions of the API. If False If HTTP Request
                                 type => 'boolean',
                             },
                         },
-                        {
-                            '$ref'   => '#/components/parameters/ApiKey',
-                            required => 1,
-                        },
                     ],
                     responses => {
                         200 => {
@@ -199,6 +195,11 @@ current versions of the API. If False If HTTP Request
                             description => 'API key is invalid or missing',
                         },
                     },
+                    security => [
+                        {
+                            api_key => [],
+                        },
+                    ],
                     'x-name' => 'Earth Imagery Image',
                 },
             },
@@ -289,8 +290,6 @@ The full schema is defined as:
               description: NOT CURRENTLY AVAILABLE!!!! calculate the percentage of the image covered by clouds
               schema:
                 type: boolean
-            - $ref: '#/components/parameters/ApiKey'
-              required: true
           responses:
             '200':
               description: Image retrieved successfully
@@ -303,6 +302,8 @@ The full schema is defined as:
               description: Bad request
             '403':
               description: API key is invalid or missing
+          security:
+            - api_key: []
       /planetary/earth/assets:
         get:
           x-name: Earth Imagery Assets
@@ -323,8 +324,6 @@ The full schema is defined as:
             - $ref: '#/components/parameters/ImageDate'
               required: true
               example: 2018-02-04
-            - $ref: '#/components/parameters/ApiKey'
-              required: true
           responses:
             '200':
               description: Image assets retrieved successfully
@@ -337,14 +336,10 @@ The full schema is defined as:
               description: Bad request
             '403':
               description: API key is invalid or missing
+          security:
+            - api_key: []
     components:
       parameters:
-        ApiKey:
-          name: api_key
-          in: query
-          description: Your API Key
-          schema:
-            type: string
         Latitude:
           name: lat
           in: query
@@ -370,4 +365,9 @@ The full schema is defined as:
           schema:
             type: string
             format: date
+      securitySchemes:
+        api_key:
+          in: query
+          name: api_key
+          type: apiKey
 
