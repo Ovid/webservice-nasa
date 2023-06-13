@@ -118,6 +118,7 @@ paths:
         The full documentation for this API can be found in the APOD API Github repository.
       parameters:
         - $ref: '#/components/parameters/ImageDate'
+          example: 2018-02-04
         - name: start_date
           in: query
           description: Start date of APOD images to retrieve
@@ -130,6 +131,16 @@ paths:
           schema:
             type: string
             format: date
+        - name: count
+          in: query
+          description: If this is specified then count randomly chosen images will be returned. Cannot be used with date or start_date and end_date.
+          schema:
+            type: integer
+        - name: thumbs
+          in: query
+          description: Return the URL of video thumbnail. If an APOD is not a video, this parameter is ignored.
+          schema:
+            type: boolean
       responses:
         "200":
           content:
@@ -139,7 +150,7 @@ paths:
                   - type: array
                     example: [{"copyright":"Petr Horalek","date":"2021-01-01","explanation":"The South Celestial Pole is easy to spot in star trail images of the southern sky.","hdurl":"https://apod.nasa.gov/apod/image/2101/2020_12_16_Kujal_Jizni_Pol_1500px-3.png","media_type":"image","service_version":"v1","title":"Galaxies and the South Celestial Pole","url":"https://apod.nasa.gov/apod/image/2101/2020_12_16_Kujal_Jizni_Pol_1500px-3.jpg"},{"copyright":"Mike Smolinsky","date":"2021-01-02","explanation":"In the mid 19th century, one of the first photographic technologies used to record the lunar surface was the wet-plate collodion process, notably employed by British astronomer Warren De la Rue.","hdurl":"https://apod.nasa.gov/apod/image/2101/WetCollodionLunar112820SMO.jpg","media_type":"image","service_version":"v1","title":"21st Century Wet Collodion Moon","url":"https://apod.nasa.gov/apod/image/2101/WetCollodionLunar112820SMO_1024.jpg"}]
                   - type: object
-                    example: {"copyright":"\nTianyao Yang\n","date":"2023-06-12","explanation":"What\u2019s that near the Moon? It\u2019s the International Space Station (ISS). Although the ISS may appear to be physically near the Moon, it is not \u2014 it is physically near the Earth. In low Earth orbit and circulating around our big blue marble about every 90 minutes, the ISS was captured photographically as it crossed nearly in front of the Moon. The Moon, itself in a month-long orbit around the Earth, shows a crescent phase as only a curving sliver of its Sun-illuminated half is visible from the Earth. The featured image was taken in late March from Shanghai, China and shows not only details of Earth's largest human-made satellite, but details of the cratered and barren surface of Earth's largest natural satellite. Over the next few years, humanity is planning to send more people and machines to the Moon than ever before.","hdurl":"https://apod.nasa.gov/apod/image/2306/IssMoon_Yang_2599.jpg","media_type":"image","service_version":"v1","title":"The Largest Satellites of Earth","url":"https://apod.nasa.gov/apod/image/2306/IssMoon_Yang_960.jpg"}
+                    example: {"copyright":"Tianyao Yang","date":"2023-06-12","explanation":"What\u2019s that near the Moon? It\u2019s the International Space Station (ISS). Although the ISS may appear to be physically near the Moon, it is not \u2014 it is physically near the Earth. In low Earth orbit and circulating around our big blue marble about every 90 minutes, the ISS was captured photographically as it crossed nearly in front of the Moon. The Moon, itself in a month-long orbit around the Earth, shows a crescent phase as only a curving sliver of its Sun-illuminated half is visible from the Earth. The featured image was taken in late March from Shanghai, China and shows not only details of Earth's largest human-made satellite, but details of the cratered and barren surface of Earth's largest natural satellite. Over the next few years, humanity is planning to send more people and machines to the Moon than ever before.","hdurl":"https://apod.nasa.gov/apod/image/2306/IssMoon_Yang_2599.jpg","media_type":"image","service_version":"v1","title":"The Largest Satellites of Earth","url":"https://apod.nasa.gov/apod/image/2306/IssMoon_Yang_960.jpg"}
           description: successful operation
         '400':
           description: Bad request

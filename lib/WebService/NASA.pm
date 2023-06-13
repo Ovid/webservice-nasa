@@ -94,9 +94,11 @@ method is_demo() {
 signature_for get_planetary_apod => (
     method => 1,
     named  => [
+        count      => Optional [NonEmptyStr],
         date       => Optional [NonEmptyStr],
         end_date   => Optional [NonEmptyStr],
         start_date => Optional [NonEmptyStr],
+        thumbs     => Optional [NonEmptyStr],
     ],
 );
 
@@ -104,9 +106,11 @@ method get_planetary_apod($arg_for) {
     return $self->_get_response(
         route  => '/planetary/apod',
         params => {
+            maybe count      => $arg_for->{count},
             maybe date       => $arg_for->{date},
             maybe end_date   => $arg_for->{end_date},
             maybe start_date => $arg_for->{start_date},
+            maybe thumbs     => $arg_for->{thumbs},
         }
     );
 }
@@ -275,9 +279,11 @@ __END__
 =head2 C<get_planetary_apod>
 
     my $result = $nasa->get_planetary_apod(
+            count => $count,
             date => $date,
             end_date => $end_date,
             start_date => $start_date,
+            thumbs => $thumbs,
         ],
     );
 
@@ -290,6 +296,12 @@ The full documentation for this API can be found in the APOD API Github reposito
 Arguments:
 
 =over 4
+
+=item * C<count> 
+
+If this is specified then count randomly chosen images will be returned. Cannot be used with date or start_date and end_date.
+
+Optional.
 
 =item * C<date> 
 
@@ -306,6 +318,12 @@ Optional.
 =item * C<start_date> 
 
 Start date of APOD images to retrieve
+
+Optional.
+
+=item * C<thumbs> 
+
+Return the URL of video thumbnail. If an APOD is not a video, this parameter is ignored.
 
 Optional.
 

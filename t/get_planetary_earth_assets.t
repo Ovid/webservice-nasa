@@ -18,24 +18,29 @@ if ( $default_response =~ /X-Ratelimit-Remaining: (\d+)/ ) {
 
 subtest 'Validate Response via OpenAPI' => sub {
     set_response( default() );
-    my $response = $nasa->get_planetary_earth_assets(
-        lon  => 100.75,
-        lat  => 1.5,
-        date => '2014-02-01',
-    );
+    my $response;
+    lives_ok {
+        $response = $nasa->get_planetary_earth_assets(
+            date => '2018-02-04',
+
+            lat => '1.5',
+            lon => '100.75',
+        );
+    }
+    'get_planetary_earth_assets survived OpenAPI validation';
 
     my $expected = {
-        'date'     => '2014-02-04T03:30:01.210000',
-        'id'       => 'LANDSAT/LC08/C01/T1_SR/LC08_127059_20140204',
-        'resource' => {
-            'dataset' => 'LANDSAT/LC08/C01/T1_SR',
-            'planet'  => 'earth'
+        date     => '2014-02-04T03:30:01.210000',
+        id       => 'LANDSAT/LC08/C01/T1_SR/LC08_127059_20140204',
+        resource => {
+            dataset => 'LANDSAT/LC08/C01/T1_SR',
+            planet  => 'earth',
         },
-        'service_version' => 'v5000',
-        'url'             =>
-          'https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/ea0061d06542c151df676804213b0e32-e13a44f7bfe19cc2a7f5c23a20921213:getPixels'
+        service_version => 'v5000',
+        url             =>
+          'https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/ea0061d06542c151df676804213b0e32-e13a44f7bfe19cc2a7f5c23a20921213:getPixels',
     };
-    eq_or_diff $response, $expected, 'get_planetary_earth_assets response is validated';
+    eq_or_diff $response, $expected, 'get_planetary_earth_assets response is decoded correctly' if $nasa->should_decode;
     is $nasa->requests_remaining, $limit_remaining, 'requests_remaining matches headers';
 };
 
@@ -47,7 +52,7 @@ HTTP/1.1 200 OK
 Access-Control-Allow-Origin: *
 Age: 1
 Connection: keep-alive
-Content-Length: 346
+Content-Length: 345
 Content-Type: application/json
 Date: Mon, 12 Jun 2023 15:43:49 GMT
 Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
@@ -61,6 +66,6 @@ X-Ratelimit-Remaining: 1993
 X-Vcap-Request-Id: 4bf471c4-27be-43d0-5dc9-1cc7fb1b9187
 X-XSS-Protection: 1; mode=block
 
-{"date":"2014-02-04T03:30:01.210000","id":"LANDSAT/LC08/C01/T1_SR/LC08_127059_20140204","resource":{"dataset":"LANDSAT/LC08/C01/T1_SR","planet":"earth"},"service_version":"v5000","url":"https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/ea0061d06542c151df676804213b0e32-e13a44f7bfe19cc2a7f5c23a20921213:getPixels"}
+{"date":"2014-02-04T03:30:01.210000","resource":{"dataset":"LANDSAT/LC08/C01/T1_SR","planet":"earth"},"url":"https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/ea0061d06542c151df676804213b0e32-e13a44f7bfe19cc2a7f5c23a20921213:getPixels","id":"LANDSAT/LC08/C01/T1_SR/LC08_127059_20140204","service_version":"v5000"}
 END
 }

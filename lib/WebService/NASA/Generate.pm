@@ -4,6 +4,7 @@ use v5.20.0;
 use warnings;
 use Carp qw(croak);
 use Data::Dumper;
+use Data::Walk  qw(walk);
 use CodeGen::Protection qw(
   create_protected_code
   rewrite_code
@@ -13,6 +14,7 @@ use Path::Tiny 'path';
 use Perl::Tidy;
 use String::Util qw(trim);
 use Template;
+use Cpanel::JSON::XS qw(encode_json);
 use YAML::XS qw(Load);
 use autodie  qw(:all);
 
@@ -53,6 +55,7 @@ method _write_webservice_nasa_module($openapi) {
             endpoint    => $path,
             parameters  => {},
             description => $openapi->{paths}{$path}{get}{description},
+            full => $openapi->{paths}{$path}{get},
         };
         foreach my $param ( $openapi->{paths}{$path}{get}{parameters}->@* ) {
             my $parameters = $self->_resolve_parameter( $openapi, $param );
@@ -81,12 +84,44 @@ method _write_webservice_nasa_module($openapi) {
 }
 
 method _write_test_for_method( $method_name, $endpoint ) {
-    my $path        = $endpoint->{endpoint};
-    my $test_name   = "t/get_${method_name}.t";
-    my $parameters  = $endpoint->{parameters};
-    my $description = $endpoint->{description};
-}
+    my $path       = $endpoint->{endpoint};
+    my $parameters = $endpoint->{parameters};
 
+    my $response_example;
+    walk sub {
+        return unless 'example' eq $_;
+        $response_example = $Data::Walk::container->{example};
+      },
+      $endpoint->{full}{responses};
+    if ( !$response_example ) {
+        warn "No response example for $path";
+        return;
+    }
+
+    # Print the template results to STDOUT
+    my $template = $self->_template;
+
+    # Mojo::JSON encode_json always escapes the forward slash to prevent XSS
+    # attacks. However, that causes the code to think the response is a string
+    # and not JSON. I have not yet debugged why, so we are using Cpanel::JSON::XS
+    # instead.
+    my $json = encode_json($response_example);
+    $template->process(
+        $self->_load_template('test_file.tt'),
+        {
+            method            => $method_name,
+            expected_response => $self->_perl_to_string($response_example),
+            body              => $json,
+            content_length    => length($json),
+            parameters        => $parameters,
+        },
+        \my $output
+    ) or die $template->error;
+    $output = $self->_tidy_code($output);
+
+    open my $fh, '>', "t/${method_name}.t";
+    print {$fh} $output;
+}
 
 method _write_schema_module( $raw_yaml, $hashref ) {
     $raw_yaml =~ s/^/    /mg;    # indent
