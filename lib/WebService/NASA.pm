@@ -24,7 +24,6 @@ use PerlX::Maybe;
 use Sys::SigAction qw(timeout_call);
 use Mojo::UserAgent;
 use Mojo::URL;
-use Mojo::JSON qw( decode_json );
 use Type::Params -sigs;
 
 our $VERSION = '0.4';
@@ -199,7 +198,7 @@ method _get_response( $route, $params ) {
     my $raw_response
       = $response->is_success
       && $self->should_decode($route)
-      && $response_body ? decode_json($response_body) : $response_body;
+      && $response_body ? $response->json : $response_body;
 
     if ( $self->validate_response ) {
         my ( $result, $errors, undef ) = $self->_validator->validate_response(
@@ -426,6 +425,5 @@ Longitude
 Required.
 
 =back
-
 
 
