@@ -64,6 +64,7 @@ method _write_webservice_nasa_module($openapi) {
             }
             $endpoints{$method_name}{parameters}{$name} = $parameters;
         }
+        $self->_write_test_for_method( $method_name, $endpoints{$method_name} );
     }
 
     # Print the template results to STDOUT
@@ -79,26 +80,37 @@ method _write_webservice_nasa_module($openapi) {
     print {$fh} $output;
 }
 
+method _write_test_for_method( $method_name, $endpoint ) {
+    my $path        = $endpoint->{endpoint};
+    my $test_name   = "t/get_${method_name}.t";
+    my $parameters  = $endpoint->{parameters};
+    my $description = $endpoint->{description};
+}
+
+
 method _write_schema_module( $raw_yaml, $hashref ) {
     $raw_yaml =~ s/^/    /mg;    # indent
 
+    # Print the template results to STDOUT
+    my $template = $self->_template;
+    $template->process(
+        $self->_load_template('webservice_nasa_schema.tt'),
+        { raw_yaml => $raw_yaml, schema => $self->_perl_to_string($hashref) },
+        \my $output
+    ) or die $template->error;
+    $output = $self->_tidy_code($output);
+    open my $fh, '>', 'lib/WebService/NASA/Schema.pm';
+    print {$fh} $output;
+}
+
+method _perl_to_string ($perl) {
     local $Data::Dumper::Indent        = 1;
     local $Data::Dumper::Sortkeys      = 1;
     local $Data::Dumper::Terse         = 1;
     local $Data::Dumper::Quotekeys     = 0;
     local $Data::Dumper::Trailingcomma = 1;
     local $Data::Dumper::Deepcopy      = 1;
-
-    # Print the template results to STDOUT
-    my $template = $self->_template;
-    $template->process(
-        $self->_load_template('webservice_nasa_schema.tt'),
-        { raw_yaml => $raw_yaml, schema => Dumper($hashref) },
-        \my $output
-    ) or die $template->error;
-    $output = $self->_tidy_code($output);
-    open my $fh, '>', 'lib/WebService/NASA/Schema.pm';
-    print {$fh} $output;
+    return Dumper($perl);
 }
 
 method _assert_valid_schema() {

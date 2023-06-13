@@ -47,7 +47,7 @@ param _api_key => (
     isa      => NonEmptyStr,
     lazy     => 1,
     init_arg => 'api_key',
-    default  => method() { $ENV{NASA_API_KEY} // $self->_api_key // 'DEMO_KEY' },
+    default  => method() { $ENV{NASA_API_KEY} // 'DEMO_KEY' },
 );
 
 field last_request_time => (
@@ -60,6 +60,11 @@ field requests_remaining => (
     isa     => PositiveOrZeroInt | Undef,
     writer  => '_set_requests_remaining',
     default => undef,
+);
+
+field response => (
+    isa    => InstanceOf ['Mojo::Message::Response'] | Undef,
+    writer => '_set_response',
 );
 
 field _ua => (
@@ -179,6 +184,7 @@ method _get_response( $route, $params ) {
         carp("Request timed out for $url");
         return;
     }
+    $self->_set_response($response);
 
     $url = $self->_sanitize_url( $params, $route );
 
@@ -195,10 +201,7 @@ method _get_response( $route, $params ) {
         $self->_debug($response_body);
     }
 
-    my $raw_response
-      = $response->is_success
-      && $self->should_decode($route)
-      && $response_body ? $response->json : $response_body;
+    my $raw_response = $self->should_decode ? $response->json : $response_body;
 
     if ( $self->validate_response ) {
         my ( $result, $errors, undef ) = $self->_validator->validate_response(
@@ -235,8 +238,9 @@ method _sanitize_url( $params, $route ) {
     return $self->_url( $route, $params );
 }
 
-method should_decode($route) {
-    return exists $self->_nasa_schema->{paths}{$route}{get}{responses}{200}{content}{'application/json'};
+method should_decode() {
+    my $response = $self->response or return 0;
+    return $response->is_success && $response->body && $response->headers->header('content-type') eq 'application/json';
 }
 
 # an easy target to override for testing
