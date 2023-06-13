@@ -87,6 +87,26 @@ method is_demo() {
     return $self->_api_key eq 'DEMO_KEY';
 }
 
+signature_for get_planetary_apod => (
+    method => 1,
+    named  => [
+        date       => Optional [NonEmptyStr],
+        end_date   => Optional [NonEmptyStr],
+        start_date => Optional [NonEmptyStr],
+    ],
+);
+
+method get_planetary_apod($arg_for) {
+    return $self->_get_response(
+        route  => '/planetary/apod',
+        params => {
+            maybe date       => $arg_for->{date},
+            maybe end_date   => $arg_for->{end_date},
+            maybe start_date => $arg_for->{start_date},
+        }
+    );
+}
+
 signature_for get_planetary_earth_assets => (
     method => 1,
     named  => [
@@ -246,6 +266,47 @@ __END__
     );
 
 =head1 METHODS
+
+
+
+=head2 C<get_planetary_apod>
+
+    my $result = $nasa->get_planetary_apod(
+            date => $date,
+            end_date => $end_date,
+            start_date => $start_date,
+        ],
+    );
+
+Method for C</planetary/apod>.
+
+One of the most popular websites at NASA is the Astronomy Picture of the Day. In fact, this website is one of the most popular websites across all federal agencies. It has the popular appeal of a Justin Bieber video. This endpoint structures the APOD imagery and associated metadata so that it can be repurposed for other applications. In addition, if the concept_tags parameter is set to True, then keywords derived from the image explanation are returned. These keywords could be used as auto-generated hashtags for twitter or instagram feeds; but generally help with discoverability of relevant imagery.
+The full documentation for this API can be found in the APOD API Github repository.
+
+
+Arguments:
+
+=over 4
+
+=item * C<date> 
+
+Date of image; if not supplied, then the most recent image (i.e., closest to today) is returned
+
+Optional.
+
+=item * C<end_date> 
+
+End date of APOD images to retrieve
+
+Optional.
+
+=item * C<start_date> 
+
+Start date of APOD images to retrieve
+
+Optional.
+
+=back
 
 
 
