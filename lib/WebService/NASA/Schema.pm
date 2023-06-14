@@ -47,6 +47,45 @@ sub get_nasa_schema () {
                     },
                 },
             },
+            schemas => {
+                APODImage => {
+                    properties => {
+                        copyright => {
+                            description => 'The copyright holder of the image',
+                            example     => 'Alan Smithee',
+                            type        => 'string',
+                        },
+                        date => {
+                            description => 'The date the image was published.',
+                            example     => '2018-02-04',
+                            format      => 'date',
+                            type        => 'string',
+                        },
+                        explanation => {
+                            description => 'The text explanation of the image. This is often much longer than the title.',
+                            example     =>
+                              'This image shows the pillars as seen in visible light, capturing the multi-coloured glow of gas clouds, wispy tendrils of dark cosmic dust, and the rust-coloured elephants trunks of the nebula\'s famous pillars.',
+                            type => 'string',
+                        },
+                        hdurl => {
+                            description => 'The URL of the high resolution image.',
+                            example     => 'https://apod.nasa.gov/apod/image/1802/M16_HubbleSchmidt_960.jpg',
+                            type        => 'string',
+                        },
+                        title => {
+                            description => 'The title of the image.',
+                            example     => 'The Eagle Nebula in Infrared from Hubble',
+                            type        => 'string',
+                        },
+                        url => {
+                            description => 'The URL of the APOD image or video of the day.',
+                            example     => 'https://apod.nasa.gov/apod/image/1802/M16_HubbleSchmidt_960.jpg',
+                            type        => 'string',
+                        },
+                    },
+                    type => 'object',
+                },
+            },
             securitySchemes => {
                 api_key => {
                     in   => 'query',
@@ -142,9 +181,13 @@ The full documentation for this API can be found in the APOD API Github reposito
                                                         url             => 'https://apod.nasa.gov/apod/image/2101/WetCollodionLunar112820SMO_1024.jpg',
                                                     },
                                                 ],
+                                                items => {
+                                                    '$ref' => '#/components/schemas/APODImage',
+                                                },
                                                 type => 'array',
                                             },
                                             {
+                                                '$ref'  => '#/components/schemas/APODImage',
                                                 example => {
                                                     copyright   => 'Tianyao Yang',
                                                     date        => '2023-06-12',
@@ -156,7 +199,6 @@ The full documentation for this API can be found in the APOD API Github reposito
                                                     title           => 'The Largest Satellites of Earth',
                                                     url             => 'https://apod.nasa.gov/apod/image/2306/IssMoon_Yang_960.jpg',
                                                 },
-                                                type => 'object',
                                             },
                                         ],
                                     },
@@ -506,7 +548,6 @@ The full schema is defined as:
               description: Image assets retrieved successfully
               content:
                 application/json:
-                  example: {"date":"2014-02-04T03:30:01.210000","id":"LANDSAT/LC08/C01/T1_SR/LC08_127059_20140204","resource":{"dataset":"LANDSAT/LC08/C01/T1_SR","planet":"earth"},"service_version":"v5000","url":"https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/ea0061d06542c151df676804213b0e32-e13a44f7bfe19cc2a7f5c23a20921213:getPixels"}
                   schema:
                     type: object
                     properties:
@@ -532,6 +573,7 @@ The full schema is defined as:
                       url:
                         type: string
                         example: https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/ea0061d06542c151df676804213b0e32-e13a44f7bfe19cc2a7f5c23a20921213:getPixels
+                  example: {"date":"2014-02-04T03:30:01.210000","id":"LANDSAT/LC08/C01/T1_SR/LC08_127059_20140204","resource":{"dataset":"LANDSAT/LC08/C01/T1_SR","planet":"earth"},"service_version":"v5000","url":"https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/ea0061d06542c151df676804213b0e32-e13a44f7bfe19cc2a7f5c23a20921213:getPixels"}
             '400':
               description: Bad request
             '403':
@@ -587,8 +629,10 @@ The full schema is defined as:
                   schema:
                     oneOf:
                       - type: array
+                        items:
+                          $ref: '#/components/schemas/APODImage'
                         example: [{"copyright":"Petr Horalek","date":"2021-01-01","explanation":"The South Celestial Pole is easy to spot in star trail images of the southern sky.","hdurl":"https://apod.nasa.gov/apod/image/2101/2020_12_16_Kujal_Jizni_Pol_1500px-3.png","media_type":"image","service_version":"v1","title":"Galaxies and the South Celestial Pole","url":"https://apod.nasa.gov/apod/image/2101/2020_12_16_Kujal_Jizni_Pol_1500px-3.jpg"},{"copyright":"Mike Smolinsky","date":"2021-01-02","explanation":"In the mid 19th century, one of the first photographic technologies used to record the lunar surface was the wet-plate collodion process, notably employed by British astronomer Warren De la Rue.","hdurl":"https://apod.nasa.gov/apod/image/2101/WetCollodionLunar112820SMO.jpg","media_type":"image","service_version":"v1","title":"21st Century Wet Collodion Moon","url":"https://apod.nasa.gov/apod/image/2101/WetCollodionLunar112820SMO_1024.jpg"}]
-                      - type: object
+                      - $ref: '#/components/schemas/APODImage'
                         example: {"copyright":"Tianyao Yang","date":"2023-06-12","explanation":"What\u2019s that near the Moon? It\u2019s the International Space Station (ISS). Although the ISS may appear to be physically near the Moon, it is not \u2014 it is physically near the Earth. In low Earth orbit and circulating around our big blue marble about every 90 minutes, the ISS was captured photographically as it crossed nearly in front of the Moon. The Moon, itself in a month-long orbit around the Earth, shows a crescent phase as only a curving sliver of its Sun-illuminated half is visible from the Earth. The featured image was taken in late March from Shanghai, China and shows not only details of Earth's largest human-made satellite, but details of the cratered and barren surface of Earth's largest natural satellite. Over the next few years, humanity is planning to send more people and machines to the Moon than ever before.","hdurl":"https://apod.nasa.gov/apod/image/2306/IssMoon_Yang_2599.jpg","media_type":"image","service_version":"v1","title":"The Largest Satellites of Earth","url":"https://apod.nasa.gov/apod/image/2306/IssMoon_Yang_960.jpg"}
               description: successful operation
             '400':
@@ -599,6 +643,35 @@ The full schema is defined as:
           tags:
             - images
     components:
+      schemas:
+        APODImage:
+          type: object
+          properties:
+            title:
+              type: string
+              example: The Eagle Nebula in Infrared from Hubble
+              description: The title of the image.
+            explanation:
+              type: string
+              example: This image shows the pillars as seen in visible light, capturing the multi-coloured glow of gas clouds, wispy tendrils of dark cosmic dust, and the rust-coloured elephants trunks of the nebula's famous pillars.
+              description: The text explanation of the image. This is often much longer than the title.
+            date:
+              type: string
+              format: date
+              example: 2018-02-04
+              description: The date the image was published.
+            copyright:
+              type: string
+              example: Alan Smithee
+              description: The copyright holder of the image
+            url:
+              type: string
+              example: https://apod.nasa.gov/apod/image/1802/M16_HubbleSchmidt_960.jpg
+              description: The URL of the APOD image or video of the day.
+            hdurl:
+              type: string
+              example: https://apod.nasa.gov/apod/image/1802/M16_HubbleSchmidt_960.jpg
+              description: The URL of the high resolution image.
       parameters:
         Latitude:
           name: lat

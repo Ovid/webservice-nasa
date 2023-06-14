@@ -2,19 +2,15 @@ package WebService::NASA::Generate;
 
 use v5.20.0;
 use warnings;
-use Carp qw(croak);
+use Carp             qw(croak);
+use Cpanel::JSON::XS qw(encode_json);
 use Data::Dumper;
-use Data::Walk  qw(walk);
-use CodeGen::Protection qw(
-  create_protected_code
-  rewrite_code
-);
+use Data::Walk qw(walk);
 use JSONSchema::Validator;
 use Path::Tiny 'path';
 use Perl::Tidy;
 use String::Util qw(trim);
 use Template;
-use Cpanel::JSON::XS qw(encode_json);
 use YAML::XS qw(Load);
 use autodie  qw(:all);
 
@@ -36,10 +32,10 @@ method run() {
 
     # we must call this first or else we might write out invalid files
     $self->_assert_valid_schema();
-    my ( $raw_yaml, $openapi ) = $self->_get_openapi;
+    my ( $raw_yaml, $openapi, $resolved ) = $self->_get_openapi;
 
     $self->_write_schema_module( $raw_yaml, $openapi );
-    $self->_write_webservice_nasa_module($openapi);
+    $self->_write_webservice_nasa_module($resolved);
 }
 
 method _write_webservice_nasa_module($openapi) {
@@ -55,10 +51,9 @@ method _write_webservice_nasa_module($openapi) {
             endpoint    => $path,
             parameters  => {},
             description => $openapi->{paths}{$path}{get}{description},
-            full => $openapi->{paths}{$path}{get},
+            full        => $openapi->{paths}{$path}{get},
         };
-        foreach my $param ( $openapi->{paths}{$path}{get}{parameters}->@* ) {
-            my $parameters = $self->_resolve_parameter( $openapi, $param );
+        foreach my $parameters ( $openapi->{paths}{$path}{get}{parameters}->@* ) {
             $parameters->{route} = $path;
             my $name = $parameters->{name} or croak("No name for $path");
             next if $name eq 'api_key';
@@ -87,28 +82,37 @@ method _write_test_for_method( $method_name, $endpoint ) {
     my $path       = $endpoint->{endpoint};
     my $parameters = $endpoint->{parameters};
 
-    my $response_example;
-    
-    walk sub {
-        return unless 'example' eq $_;
-        $response_example = $Data::Walk::container->{example};
-      },
-      $endpoint->{full}{responses};
-    if ( !$response_example ) {
-        warn "No response example for $path";
-        return;
-    }
-
     # Currenty, I don't know of any NASA APIs that return anything other than
     # a single content type. However, the OpenAPI spec allows for multiple
     # content types, so this is fragile. Hence, we warn.
-    my @content_types =  keys $endpoint->{full}{responses}{200}{content}->%*;
+    my @content_types = keys $endpoint->{full}{responses}{200}{content}->%*;
     if ( @content_types > 1 ) {
         my $content_types = join ', ', @content_types;
         warn "Multiple content types for $path: $content_types";
         return;
     }
-    my $content_type = $content_types[0];
+    my $content_type     = $content_types[0];
+    my $response_content = $endpoint->{full}{responses}{200}{content}{$content_type};
+    my $response_example = $response_content->{example};
+
+    # ok, we didn't have a single example, but we have might have multiple
+    # examples. APOD does this because it might return a list of objects or
+    # single object
+    if ( !$response_example ) {
+        my $optional_responses = $response_content->{schema}{anyOf} // $response_content->{schema}{oneOf};
+        if ($optional_responses) {
+            RESPONSE: foreach my $optional_response ( $optional_responses->@* ) {
+                if ( $optional_response->{example} ) {
+                    $response_example = $optional_response->{example};
+                    last RESPONSE;
+                }
+            }
+        }
+        if ( !$response_example ) {
+            warn "No response example for $path";
+            return;
+        }
+    }
 
     # Print the template results to STDOUT
     my $template = $self->_template;
@@ -151,7 +155,7 @@ method _write_schema_module( $raw_yaml, $hashref ) {
     print {$fh} $output;
 }
 
-method _perl_to_string ($perl) {
+method _perl_to_string($perl) {
     local $Data::Dumper::Indent        = 1;
     local $Data::Dumper::Sortkeys      = 1;
     local $Data::Dumper::Terse         = 1;
@@ -178,20 +182,29 @@ method _assert_valid_schema() {
 method _get_openapi() {
     open my $fh, '<', $self->openapi;
     my $raw_yaml = do { local $/; <$fh> };
-    my $hashref  = Load($raw_yaml);
-    return ( $raw_yaml, $hashref );
-}
+    my $openapi  = Load($raw_yaml);
+    my $resolved = Load($raw_yaml);
 
-method _resolve_parameter( $openapi, $parameter ) {
-    return $parameter if !exists $parameter->{'$ref'};
-    my $reference = delete $parameter->{'$ref'}
-      or croak("parameter must have a name or a reference");
-    my $components = $openapi->{'components'};
-    $reference =~ s{\A.*/}{};
-    return {
-        $components->{parameters}{$reference}->%*,
-        $parameter->%*,
-    };
+    # resolve all references
+    walk sub {
+        return unless '$ref' eq $_;
+        unless ( 'HASH' eq $Data::Walk::type ) {
+            croak "Expected HASH, got " . ref $Data::Walk::type;
+        }
+        my $container = $Data::Walk::container;
+        my $ref       = delete $container->{'$ref'};
+        my ( undef, undef, $type, $name ) = split '/', $ref;
+        my $reference = $openapi->{components}{$type}{$name} or croak "Could not resolve $ref";
+
+        # Replace all $ref entries with the corresponding component value
+        # strictly speaking, this is a spec violation. OpenAPI 3.0.0 says that
+        # a $ref replaces all siblings. They're allowed to be defined, but
+        # they're simply discarded (not helpful!). OpenAPI 3.0.1 allgedly has
+        # support for keeping siblings, but we're not there yet.
+        $container->%* = ( $reference->%*, $container->%* );
+      },
+      $resolved;
+    return ( $raw_yaml, $openapi, $resolved );
 }
 
 method _tidy_code($code) {

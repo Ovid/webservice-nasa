@@ -28,17 +28,29 @@ subtest 'Validate Response via OpenAPI' => sub {
     }
     'get_planetary_apod survived OpenAPI validation';
 
-    my $expected = {
-        copyright   => 'Tianyao Yang',
-        date        => '2023-06-12',
-        explanation =>
-          "What\x{2019}s that near the Moon? It\x{2019}s the International Space Station (ISS). Although the ISS may appear to be physically near the Moon, it is not \x{2014} it is physically near the Earth. In low Earth orbit and circulating around our big blue marble about every 90 minutes, the ISS was captured photographically as it crossed nearly in front of the Moon. The Moon, itself in a month-long orbit around the Earth, shows a crescent phase as only a curving sliver of its Sun-illuminated half is visible from the Earth. The featured image was taken in late March from Shanghai, China and shows not only details of Earth's largest human-made satellite, but details of the cratered and barren surface of Earth's largest natural satellite. Over the next few years, humanity is planning to send more people and machines to the Moon than ever before.",
-        hdurl           => 'https://apod.nasa.gov/apod/image/2306/IssMoon_Yang_2599.jpg',
-        media_type      => 'image',
-        service_version => 'v1',
-        title           => 'The Largest Satellites of Earth',
-        url             => 'https://apod.nasa.gov/apod/image/2306/IssMoon_Yang_960.jpg',
-    };
+    my $expected = [
+        {
+            copyright       => 'Petr Horalek',
+            date            => '2021-01-01',
+            explanation     => 'The South Celestial Pole is easy to spot in star trail images of the southern sky.',
+            hdurl           => 'https://apod.nasa.gov/apod/image/2101/2020_12_16_Kujal_Jizni_Pol_1500px-3.png',
+            media_type      => 'image',
+            service_version => 'v1',
+            title           => 'Galaxies and the South Celestial Pole',
+            url             => 'https://apod.nasa.gov/apod/image/2101/2020_12_16_Kujal_Jizni_Pol_1500px-3.jpg',
+        },
+        {
+            copyright   => 'Mike Smolinsky',
+            date        => '2021-01-02',
+            explanation =>
+              'In the mid 19th century, one of the first photographic technologies used to record the lunar surface was the wet-plate collodion process, notably employed by British astronomer Warren De la Rue.',
+            hdurl           => 'https://apod.nasa.gov/apod/image/2101/WetCollodionLunar112820SMO.jpg',
+            media_type      => 'image',
+            service_version => 'v1',
+            title           => '21st Century Wet Collodion Moon',
+            url             => 'https://apod.nasa.gov/apod/image/2101/WetCollodionLunar112820SMO_1024.jpg',
+        },
+    ];
     eq_or_diff $response, $expected, 'get_planetary_apod response is decoded correctly' if $nasa->should_decode;
     is $nasa->requests_remaining, $limit_remaining, 'requests_remaining matches headers';
 };
@@ -51,7 +63,7 @@ HTTP/1.1 200 OK
 Access-Control-Allow-Origin: *
 Age: 1
 Connection: keep-alive
-Content-Length: 1122
+Content-Length: 924
 Content-Type: application/json
 Date: Mon, 12 Jun 2023 15:43:49 GMT
 Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
@@ -65,6 +77,6 @@ X-Ratelimit-Remaining: 1993
 X-Vcap-Request-Id: 4bf471c4-27be-43d0-5dc9-1cc7fb1b9187
 X-XSS-Protection: 1; mode=block
 
-{"copyright":"Tianyao Yang","hdurl":"https://apod.nasa.gov/apod/image/2306/IssMoon_Yang_2599.jpg","service_version":"v1","title":"The Largest Satellites of Earth","date":"2023-06-12","explanation":"What’s that near the Moon? It’s the International Space Station (ISS). Although the ISS may appear to be physically near the Moon, it is not — it is physically near the Earth. In low Earth orbit and circulating around our big blue marble about every 90 minutes, the ISS was captured photographically as it crossed nearly in front of the Moon. The Moon, itself in a month-long orbit around the Earth, shows a crescent phase as only a curving sliver of its Sun-illuminated half is visible from the Earth. The featured image was taken in late March from Shanghai, China and shows not only details of Earth's largest human-made satellite, but details of the cratered and barren surface of Earth's largest natural satellite. Over the next few years, humanity is planning to send more people and machines to the Moon than ever before.","url":"https://apod.nasa.gov/apod/image/2306/IssMoon_Yang_960.jpg","media_type":"image"}
+[{"service_version":"v1","hdurl":"https://apod.nasa.gov/apod/image/2101/2020_12_16_Kujal_Jizni_Pol_1500px-3.png","media_type":"image","copyright":"Petr Horalek","url":"https://apod.nasa.gov/apod/image/2101/2020_12_16_Kujal_Jizni_Pol_1500px-3.jpg","explanation":"The South Celestial Pole is easy to spot in star trail images of the southern sky.","title":"Galaxies and the South Celestial Pole","date":"2021-01-01"},{"explanation":"In the mid 19th century, one of the first photographic technologies used to record the lunar surface was the wet-plate collodion process, notably employed by British astronomer Warren De la Rue.","copyright":"Mike Smolinsky","url":"https://apod.nasa.gov/apod/image/2101/WetCollodionLunar112820SMO_1024.jpg","media_type":"image","hdurl":"https://apod.nasa.gov/apod/image/2101/WetCollodionLunar112820SMO.jpg","service_version":"v1","date":"2021-01-02","title":"21st Century Wet Collodion Moon"}]
 END
 }
