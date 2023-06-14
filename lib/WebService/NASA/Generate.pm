@@ -50,7 +50,6 @@ method _write_webservice_nasa_module($openapi) {
         $endpoints{$method_name} = {
             endpoint    => $path,
             parameters  => {},
-            description => $openapi->{paths}{$path}{get}{description},
             full        => $openapi->{paths}{$path}{get},
         };
         foreach my $parameters ( $openapi->{paths}{$path}{get}{parameters}->@* ) {
