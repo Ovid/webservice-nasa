@@ -66,6 +66,6 @@ X-Ratelimit-Remaining: 1993
 X-Vcap-Request-Id: 4bf471c4-27be-43d0-5dc9-1cc7fb1b9187
 X-XSS-Protection: 1; mode=block
 
-{"id":"LANDSAT/LC08/C01/T1_SR/LC08_127059_20140204","resource":{"planet":"earth","dataset":"LANDSAT/LC08/C01/T1_SR"},"url":"https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/ea0061d06542c151df676804213b0e32-e13a44f7bfe19cc2a7f5c23a20921213:getPixels","date":"2014-02-04T03:30:01.210000","service_version":"v5000"}
+{"date":"2014-02-04T03:30:01.210000","service_version":"v5000","resource":{"dataset":"LANDSAT/LC08/C01/T1_SR","planet":"earth"},"url":"https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/ea0061d06542c151df676804213b0e32-e13a44f7bfe19cc2a7f5c23a20921213:getPixels","id":"LANDSAT/LC08/C01/T1_SR/LC08_127059_20140204"}
 END
 }

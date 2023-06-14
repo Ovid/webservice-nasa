@@ -223,6 +223,39 @@ is primarily to support the use of the imagery endpoint.
                                           'https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/ea0061d06542c151df676804213b0e32-e13a44f7bfe19cc2a7f5c23a20921213:getPixels',
                                     },
                                     schema => {
+                                        properties => {
+                                            date => {
+                                                example => '2014-02-04T03:30:01.210000',
+                                                format  => 'date-time',
+                                                type    => 'string',
+                                            },
+                                            id => {
+                                                example => 'LANDSAT/LC08/C01/T1_SR/LC08_127059_20140204',
+                                                type    => 'string',
+                                            },
+                                            resource => {
+                                                properties => {
+                                                    dataset => {
+                                                        example => 'LANDSAT/LC08/C01/T1_SR',
+                                                        type    => 'string',
+                                                    },
+                                                    planet => {
+                                                        example => 'earth',
+                                                        type    => 'string',
+                                                    },
+                                                },
+                                                type => 'object',
+                                            },
+                                            service_version => {
+                                                example => 'v5000',
+                                                type    => 'string',
+                                            },
+                                            url => {
+                                                example =>
+                                                  'https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/ea0061d06542c151df676804213b0e32-e13a44f7bfe19cc2a7f5c23a20921213:getPixels',
+                                                type => 'string',
+                                            },
+                                        },
                                         type => 'object',
                                     },
                                 },
@@ -473,9 +506,32 @@ The full schema is defined as:
               description: Image assets retrieved successfully
               content:
                 application/json:
+                  example: {"date":"2014-02-04T03:30:01.210000","id":"LANDSAT/LC08/C01/T1_SR/LC08_127059_20140204","resource":{"dataset":"LANDSAT/LC08/C01/T1_SR","planet":"earth"},"service_version":"v5000","url":"https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/ea0061d06542c151df676804213b0e32-e13a44f7bfe19cc2a7f5c23a20921213:getPixels"}
                   schema:
                     type: object
-                  example: {"date":"2014-02-04T03:30:01.210000","id":"LANDSAT/LC08/C01/T1_SR/LC08_127059_20140204","resource":{"dataset":"LANDSAT/LC08/C01/T1_SR","planet":"earth"},"service_version":"v5000","url":"https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/ea0061d06542c151df676804213b0e32-e13a44f7bfe19cc2a7f5c23a20921213:getPixels"}
+                    properties:
+                      id:
+                        type: string
+                        example: LANDSAT/LC08/C01/T1_SR/LC08_127059_20140204
+                      date:
+                        type: string
+                        format: date-time
+                        example: 2014-02-04T03:30:01.210000
+                      resource:
+                        type: object
+                        properties:
+                          dataset:
+                            type: string
+                            example: LANDSAT/LC08/C01/T1_SR
+                          planet:
+                            type: string
+                            example: earth
+                      service_version:
+                        type: string
+                        example: v5000
+                      url:
+                        type: string
+                        example: https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/ea0061d06542c151df676804213b0e32-e13a44f7bfe19cc2a7f5c23a20921213:getPixels
             '400':
               description: Bad request
             '403':
