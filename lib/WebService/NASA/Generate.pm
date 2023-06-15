@@ -1,5 +1,7 @@
 package WebService::NASA::Generate;
 
+# ABSTRACT: Generate WebService::NASA modules from OpenAPI
+
 use v5.20.0;
 use warnings;
 use Carp             qw(croak);
