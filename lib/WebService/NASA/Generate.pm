@@ -49,12 +49,14 @@ method _write_webservice_nasa_module($openapi) {
         if ( my $previous_path = $endpoints{$method_name} ) {
             croak("Duplicate method name '$method_name' generated from $path and $previous_path->{path}");
         }
+
+        my $route = $openapi->{paths}{$path}{get};
         $endpoints{$method_name} = {
             endpoint   => $path,
             parameters => {},
-            full       => $openapi->{paths}{$path}{get},
+            full       => $route,
         };
-        foreach my $parameters ( $openapi->{paths}{$path}{get}{parameters}->@* ) {
+        foreach my $parameters ( $route->{parameters}->@* ) {
             $parameters->{route} = $path;
             my $name = $parameters->{name} or croak("No name for $path");
             next if $name eq 'api_key';

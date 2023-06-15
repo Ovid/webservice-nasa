@@ -21,12 +21,10 @@ subtest 'Validate Response via OpenAPI' => sub {
     my $response; 
     lives_ok { 
         $response = $nasa->[% method %](
-            query => {
-            [%- FOREACH parameter IN parameters;
-                  IF parameter.value.exists('example') -%]
-                [% parameter.key %] => '[% parameter.value.example %]',[% END %]
-            [%- END %]
-            },
+        [%- FOREACH parameter IN parameters;
+                IF parameter.value.exists('example') -%]
+            [% parameter.key %] => '[% parameter.value.example %]',[% END %]
+        [%- END %]
         );
     }
     '[% method %] survived OpenAPI validation';

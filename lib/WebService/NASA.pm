@@ -198,16 +198,13 @@ method _url( $url, $query ) {
 signature_for get_planetary_apod => (
     method => 1,
     named  => [
-        query => Dict [
-            count      => Optional [NonEmptyStr],
-            date       => Optional [NonEmptyStr],
-            end_date   => Optional [NonEmptyStr],
-            start_date => Optional [NonEmptyStr],
-            thumbs     => Optional [NonEmptyStr],
-            api_key    => Optional [NonEmptyStr],
-        ],
+        count      => Optional [NonEmptyStr],
+        date       => Optional [NonEmptyStr],
+        end_date   => Optional [NonEmptyStr],
+        start_date => Optional [NonEmptyStr],
+        thumbs     => Optional [NonEmptyStr],
+        api_key    => Optional [NonEmptyStr],
     ],
-    named_to_list => 1,
 );
 
 method get_planetary_apod($query) {
@@ -227,15 +224,12 @@ method get_planetary_apod($query) {
 signature_for get_planetary_earth_assets => (
     method => 1,
     named  => [
-        query => Dict [
-            date    => NonEmptyStr,
-            dim     => Optional [NonEmptyStr],
-            lat     => NonEmptyStr,
-            lon     => NonEmptyStr,
-            api_key => Optional [NonEmptyStr],
-        ],
+        date    => NonEmptyStr,
+        dim     => Optional [NonEmptyStr],
+        lat     => NonEmptyStr,
+        lon     => NonEmptyStr,
+        api_key => Optional [NonEmptyStr],
     ],
-    named_to_list => 1,
 );
 
 method get_planetary_earth_assets($query) {
@@ -254,16 +248,13 @@ method get_planetary_earth_assets($query) {
 signature_for get_planetary_earth_imagery => (
     method => 1,
     named  => [
-        query => Dict [
-            cloud_score => Optional [NonEmptyStr],
-            date        => NonEmptyStr,
-            dim         => Optional [NonEmptyStr],
-            lat         => NonEmptyStr,
-            lon         => NonEmptyStr,
-            api_key     => Optional [NonEmptyStr],
-        ],
+        cloud_score => Optional [NonEmptyStr],
+        date        => NonEmptyStr,
+        dim         => Optional [NonEmptyStr],
+        lat         => NonEmptyStr,
+        lon         => NonEmptyStr,
+        api_key     => Optional [NonEmptyStr],
     ],
-    named_to_list => 1,
 );
 
 method get_planetary_earth_imagery($query) {
@@ -302,13 +293,11 @@ full OpenAPI 3.0.0 specification, which can be found at F<nasa/openapi.yaml>.
 =head2 C<get_planetary_apod>
 
     my $result = $nasa->get_planetary_apod(
-        query => {
-            count      => $count,
-            date       => $date,
-            end_date   => $end_date,
-            start_date => $start_date,
-            thumbs     => $thumbs,
-        } ],
+        count      => $count,
+        date       => $date,
+        end_date   => $end_date,
+        start_date => $start_date,
+        thumbs     => $thumbs,
     );
 
 Method for C</planetary/apod>.
@@ -358,12 +347,10 @@ Optional.
 =head2 C<get_planetary_earth_assets>
 
     my $result = $nasa->get_planetary_earth_assets(
-        query => {
-            date => $date,
-            dim  => $dim,
-            lat  => $lat,
-            lon  => $lon,
-        } ],
+        date => $date,
+        dim  => $dim,
+        lat  => $lat,
+        lon  => $lon,
     );
 
 Method for C</planetary/earth/assets>.
@@ -410,13 +397,11 @@ Required.
 =head2 C<get_planetary_earth_imagery>
 
     my $result = $nasa->get_planetary_earth_imagery(
-        query => {
-            cloud_score => $cloud_score,
-            date        => $date,
-            dim         => $dim,
-            lat         => $lat,
-            lon         => $lon,
-        } ],
+        cloud_score => $cloud_score,
+        date        => $date,
+        dim         => $dim,
+        lat         => $lat,
+        lon         => $lon,
     );
 
 Method for C</planetary/earth/imagery>.

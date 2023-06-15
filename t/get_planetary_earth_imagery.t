@@ -21,9 +21,7 @@ subtest 'Validate Response via OpenAPI' => sub {
     my $response;
     lives_ok {
         $response = $nasa->get_planetary_earth_imagery(
-            query => {
-                date => '2018-01-01', lat => '1.5', lon => '100.75',
-            },
+            date => '2018-01-01', lat => '1.5', lon => '100.75',
         );
     }
     'get_planetary_earth_imagery survived OpenAPI validation';

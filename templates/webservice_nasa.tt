@@ -201,16 +201,12 @@ method _url( $url, $query ) {
 %]
 signature_for [% method %] => (
     method => 1,
-    [% IF params.size -%]
     named  => [
-        query => Dict[
-            [%-FOREACH param IN params -%]
-            [% param.key %] => [% IF param.value.required %]NonEmptyStr[% ELSE %]Optional[NonEmptyStr][% END %],
-            [% END -%]
-            api_key => Optional[NonEmptyStr],
-        ],
-    ],[% END %]
-    named_to_list => 1,
+        [%-FOREACH param IN params -%]
+        [% param.key %] => [% IF param.value.required %]NonEmptyStr[% ELSE %]Optional[NonEmptyStr][% END %],
+        [% END -%]
+        api_key => Optional[NonEmptyStr],
+    ],
 );
 
 method [% method %] ($query) {
@@ -250,10 +246,13 @@ full OpenAPI 3.0.0 specification, which can be found at F<nasa/openapi.yaml>.
 
 =head2 C<[% method %]>
 
-    [%- USE PerlTidy -%][% FILTER $PerlTidy %]
-    my $result = $nasa->[% method %]([% IF params %] query => { [% FOREACH param IN params %]
-            [% param.key %] => $[% param.key %],[% END %]}[% END %]
-        ],
+    [%- USE PerlTidy; FILTER $PerlTidy %]
+    my $result = $nasa->[% method %](
+        [%- IF params -%]
+          [%- FOREACH param IN params -%]
+            [% param.key %] => $[% param.key %],
+          [% END -%]
+        [%- END -%]
     );
     [%- END -%]
 
