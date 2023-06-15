@@ -25,6 +25,7 @@ use PerlX::Maybe;
 use Sys::SigAction qw(timeout_call);
 use Mojo::UserAgent;
 use Mojo::URL;
+use Cpanel::JSON::XS;
 use Type::Params -sigs;
 
 our $VERSION = '0.4';
@@ -49,6 +50,17 @@ param _api_key => (
     lazy     => 1,
     init_arg => 'api_key',
     default  => method() { $ENV{NASA_API_KEY} // 'DEMO_KEY' },
+);
+
+field is_timeout => (
+    isa     => Bool,
+    writer  => '_set_is_timeout',
+    default => 0,
+);
+
+field _json => (
+    isa     => InstanceOf ['Cpanel::JSON::XS'],
+    default => method() { Cpanel::JSON::XS->new->utf8->unblessed_bool(1) },
 );
 
 field last_request_time => (
@@ -114,8 +126,10 @@ method _get_response( $route, $query ) {
     }
 
     my $response;
+    $self->_set_is_timeout(0);
     if ( timeout_call( $self->timeout, sub { $response = $self->_GET($url) } ) ) {
         $url = $self->_sanitize_url( $query, $route );
+        $self->_set_is_timeout(1);
         carp("Request timed out for $url");
         return;
     }
@@ -136,7 +150,7 @@ method _get_response( $route, $query ) {
         $self->_debug($response_body);
     }
 
-    my $raw_response = $self->should_decode ? $response->json : $response_body;
+    my $raw_response = $self->should_decode ? $self->_json->decode($response_body) : $response_body;
 
     if ( $self->validate_response ) {
         my ( $result, $errors, undef ) = $self->_validator->validate_response(
@@ -194,6 +208,26 @@ method _url( $url, $query ) {
 }
 
 # Begin generated code here
+
+signature_for get_neo_rest_v1_feed => (
+    method => 1,
+    named  => [
+        end_date   => Optional [NonEmptyStr],
+        start_date => Optional [NonEmptyStr],
+        api_key    => Optional [NonEmptyStr],
+    ],
+);
+
+method get_neo_rest_v1_feed($query) {
+    return $self->_get_response(
+        route => '/neo/rest/v1/feed',
+        query => {
+            maybe end_date   => $query->{end_date},
+            maybe start_date => $query->{start_date},
+            maybe api_key    => $query->{api_key},
+        }
+    );
+}
 
 signature_for get_planetary_apod => (
     method => 1,
@@ -296,6 +330,39 @@ requests per ip address per hour and 50 requests per ip address per day.
 
 Passing in an API key is useful if you have multiple keys and want to use a
 different one for a specific request.
+
+
+
+=head2 C<get_neo_rest_v1_feed>
+
+    my $result = $nasa->get_neo_rest_v1_feed(
+        end_date   => $end_date,
+        start_date => $start_date,
+    );
+
+Method for C</neo/rest/v1/feed>.
+
+Retrieve a list of Asteroids based on their closest approach date to Earth.
+
+
+Arguments:
+
+=over 4
+
+=item * C<end_date> 
+
+End date of APOD images to retrieve
+
+Optional.
+
+=item * C<start_date> 
+
+Start date of APOD images to retrieve
+
+Optional.
+
+
+=back
 
 
 
