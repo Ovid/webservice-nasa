@@ -16,12 +16,14 @@ use autodie  qw(:all);
 
 use WebService::NASA::Moose types => [
     qw(
+      Bool
       InstanceOf
       NonEmptyStr
     )
 ];
 
 param openapi => ( isa => NonEmptyStr );
+param debug   => ( isa => Bool, default => 0 );
 
 field _template => (
     isa     => InstanceOf ['Template'],
@@ -48,9 +50,9 @@ method _write_webservice_nasa_module($openapi) {
             croak("Duplicate method name '$method_name' generated from $path and $previous_path->{path}");
         }
         $endpoints{$method_name} = {
-            endpoint    => $path,
-            parameters  => {},
-            full        => $openapi->{paths}{$path}{get},
+            endpoint   => $path,
+            parameters => {},
+            full       => $openapi->{paths}{$path}{get},
         };
         foreach my $parameters ( $openapi->{paths}{$path}{get}{parameters}->@* ) {
             $parameters->{route} = $path;
@@ -73,8 +75,16 @@ method _write_webservice_nasa_module($openapi) {
     ) or die $template->error;
     $output = $self->_tidy_code($output);
 
-    open my $fh, '>', 'lib/WebService/NASA.pm';
-    print {$fh} $output;
+    my $filename = 'lib/WebService/NASA.pm';
+    if ($self->debug) {
+        say '-' x 80;
+        say "Writing $filename";
+        say $output;
+    }
+    else {
+        open my $fh, '>', $filename;
+        print {$fh} $output;
+    }
 }
 
 method _write_test_for_method( $method_name, $endpoint ) {
@@ -135,8 +145,16 @@ method _write_test_for_method( $method_name, $endpoint ) {
     ) or die $template->error;
     $output = $self->_tidy_code($output);
 
-    open my $fh, '>', "t/${method_name}.t";
-    print {$fh} $output;
+    my $filename = "t/${method_name}.t";
+    if ( $self->debug ) {
+        say '-' x 80;
+        say "Writing $filename";
+        #say $output;
+    }
+    else {
+        open my $fh, '>', $filename;
+        print {$fh} $output;
+    }
 }
 
 method _write_schema_module( $raw_yaml, $hashref ) {
@@ -150,8 +168,17 @@ method _write_schema_module( $raw_yaml, $hashref ) {
         \my $output
     ) or die $template->error;
     $output = $self->_tidy_code($output);
-    open my $fh, '>', 'lib/WebService/NASA/Schema.pm';
-    print {$fh} $output;
+
+    my $filename = 'lib/WebService/NASA/Schema.pm';
+    if ( $self->debug ) {
+        say '-' x 80;
+        say "Writing $filename";
+        #say $output;
+    }
+    else {
+        open my $fh, '>', $filename;
+        print {$fh} $output;
+    }
 }
 
 method _perl_to_string($perl) {
@@ -214,9 +241,7 @@ method _tidy_code($code) {
     $perltidyrc = do { local $/; <$fh> };
     close $fh;
 
-    # need to clear @ARGV or else Perl::Tidy thinks you're trying
-    # to provide a filename and dies
-    local @ARGV;
+    local @ARGV = ();
     Perl::Tidy::perltidy(
         source      => \$code,
         destination => \$tidied,

@@ -21,9 +21,9 @@ subtest 'Validate Response via OpenAPI' => sub {
     my $response;
     lives_ok {
         $response = $nasa->get_planetary_apod(
-
-            date => '2018-02-04',
-
+            query => {
+                date => '2018-02-04',
+            },
         );
     }
     'get_planetary_apod survived OpenAPI validation';
@@ -77,6 +77,6 @@ X-Ratelimit-Remaining: 1993
 X-Vcap-Request-Id: 4bf471c4-27be-43d0-5dc9-1cc7fb1b9187
 X-XSS-Protection: 1; mode=block
 
-[{"service_version":"v1","hdurl":"https://apod.nasa.gov/apod/image/2101/2020_12_16_Kujal_Jizni_Pol_1500px-3.png","media_type":"image","copyright":"Petr Horalek","url":"https://apod.nasa.gov/apod/image/2101/2020_12_16_Kujal_Jizni_Pol_1500px-3.jpg","explanation":"The South Celestial Pole is easy to spot in star trail images of the southern sky.","title":"Galaxies and the South Celestial Pole","date":"2021-01-01"},{"explanation":"In the mid 19th century, one of the first photographic technologies used to record the lunar surface was the wet-plate collodion process, notably employed by British astronomer Warren De la Rue.","copyright":"Mike Smolinsky","url":"https://apod.nasa.gov/apod/image/2101/WetCollodionLunar112820SMO_1024.jpg","media_type":"image","hdurl":"https://apod.nasa.gov/apod/image/2101/WetCollodionLunar112820SMO.jpg","service_version":"v1","date":"2021-01-02","title":"21st Century Wet Collodion Moon"}]
+[{"media_type":"image","hdurl":"https://apod.nasa.gov/apod/image/2101/2020_12_16_Kujal_Jizni_Pol_1500px-3.png","date":"2021-01-01","explanation":"The South Celestial Pole is easy to spot in star trail images of the southern sky.","service_version":"v1","title":"Galaxies and the South Celestial Pole","copyright":"Petr Horalek","url":"https://apod.nasa.gov/apod/image/2101/2020_12_16_Kujal_Jizni_Pol_1500px-3.jpg"},{"explanation":"In the mid 19th century, one of the first photographic technologies used to record the lunar surface was the wet-plate collodion process, notably employed by British astronomer Warren De la Rue.","service_version":"v1","title":"21st Century Wet Collodion Moon","copyright":"Mike Smolinsky","url":"https://apod.nasa.gov/apod/image/2101/WetCollodionLunar112820SMO_1024.jpg","media_type":"image","hdurl":"https://apod.nasa.gov/apod/image/2101/WetCollodionLunar112820SMO.jpg","date":"2021-01-02"}]
 END
 }

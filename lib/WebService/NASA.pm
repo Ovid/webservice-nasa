@@ -8,6 +8,7 @@ use v5.20.0;
 use WebService::NASA::Moose types => [
     qw(
       Bool
+      Dict
       HashRef
       InstanceOf
       NonEmptyStr
@@ -91,88 +92,18 @@ method is_demo() {
     return $self->_api_key eq 'DEMO_KEY';
 }
 
-signature_for get_planetary_apod => (
-    method => 1,
-    named  => [
-        count      => Optional [NonEmptyStr],
-        date       => Optional [NonEmptyStr],
-        end_date   => Optional [NonEmptyStr],
-        start_date => Optional [NonEmptyStr],
-        thumbs     => Optional [NonEmptyStr],
-    ],
-);
-
-method get_planetary_apod($arg_for) {
-    return $self->_get_response(
-        route  => '/planetary/apod',
-        params => {
-            maybe count      => $arg_for->{count},
-            maybe date       => $arg_for->{date},
-            maybe end_date   => $arg_for->{end_date},
-            maybe start_date => $arg_for->{start_date},
-            maybe thumbs     => $arg_for->{thumbs},
-        }
-    );
-}
-
-signature_for get_planetary_earth_assets => (
-    method => 1,
-    named  => [
-        date => NonEmptyStr,
-        dim  => Optional [NonEmptyStr],
-        lat  => NonEmptyStr,
-        lon  => NonEmptyStr,
-    ],
-);
-
-method get_planetary_earth_assets($arg_for) {
-    return $self->_get_response(
-        route  => '/planetary/earth/assets',
-        params => {
-            date      => $arg_for->{date},
-            maybe dim => $arg_for->{dim},
-            lat       => $arg_for->{lat},
-            lon       => $arg_for->{lon},
-        }
-    );
-}
-
-signature_for get_planetary_earth_imagery => (
-    method => 1,
-    named  => [
-        cloud_score => Optional [NonEmptyStr],
-        date        => NonEmptyStr,
-        dim         => Optional [NonEmptyStr],
-        lat         => NonEmptyStr,
-        lon         => NonEmptyStr,
-    ],
-);
-
-method get_planetary_earth_imagery($arg_for) {
-    return $self->_get_response(
-        route  => '/planetary/earth/imagery',
-        params => {
-            maybe cloud_score => $arg_for->{cloud_score},
-            date              => $arg_for->{date},
-            maybe dim         => $arg_for->{dim},
-            lat               => $arg_for->{lat},
-            lon               => $arg_for->{lon},
-        }
-    );
-}
-
 signature_for _get_response => (
     method => 1,
     named  => [
-        route  => NonEmptyStr,
-        params => HashRef [NonEmptyStr],
+        route => NonEmptyStr,
+        query => HashRef [NonEmptyStr],
     ],
     named_to_list => 1,
 );
 
-method _get_response( $route, $params ) {
-    $params->{api_key} = $self->_api_key;
-    my $url = $self->_url( $route, $params );
+method _get_response( $route, $query ) {
+    $query->{api_key} = $self->_api_key;
+    my $url = $self->_url( $route, $query );
 
     my $requests_remaining = $self->requests_remaining;
 
@@ -184,13 +115,13 @@ method _get_response( $route, $params ) {
 
     my $response;
     if ( timeout_call( $self->timeout, sub { $response = $self->_GET($url) } ) ) {
-        $url = $self->_sanitize_url( $params, $route );
+        $url = $self->_sanitize_url( $query, $route );
         carp("Request timed out for $url");
         return;
     }
     $self->_set_response($response);
 
-    $url = $self->_sanitize_url( $params, $route );
+    $url = $self->_sanitize_url( $query, $route );
 
     my $remaining = $response->headers->header('X-RateLimit-Remaining');
     if ( defined $remaining ) {
@@ -234,12 +165,12 @@ method _get_response( $route, $params ) {
     return $raw_response;
 }
 
-method _sanitize_url( $params, $route ) {
+method _sanitize_url( $query, $route ) {
 
     # immediately replace the api key with stars in the URL in case this
     # shows up in logs
-    $params->{api_key} = 'REDACTED';
-    return $self->_url( $route, $params );
+    $query->{api_key} = 'REDACTED';
+    return $self->_url( $route, $query );
 }
 
 method should_decode() {
@@ -258,8 +189,95 @@ method _debug($msg) {
     say STDERR $msg;
 }
 
-method _url( $url, $params ) {
-    return Mojo::URL->new( $self->_base_url . $url )->query($params);
+method _url( $url, $query ) {
+    return Mojo::URL->new( $self->_base_url . $url )->query($query);
+}
+
+# Begin generated code here
+
+signature_for get_planetary_apod => (
+    method => 1,
+    named  => [
+        query => Dict [
+            count      => Optional [NonEmptyStr],
+            date       => Optional [NonEmptyStr],
+            end_date   => Optional [NonEmptyStr],
+            start_date => Optional [NonEmptyStr],
+            thumbs     => Optional [NonEmptyStr],
+            api_key    => Optional [NonEmptyStr],
+        ],
+    ],
+    named_to_list => 1,
+);
+
+method get_planetary_apod($query) {
+    return $self->_get_response(
+        route => '/planetary/apod',
+        query => {
+            maybe count      => $query->{count},
+            maybe date       => $query->{date},
+            maybe end_date   => $query->{end_date},
+            maybe start_date => $query->{start_date},
+            maybe thumbs     => $query->{thumbs},
+            maybe api_key    => $query->{api_key},
+        }
+    );
+}
+
+signature_for get_planetary_earth_assets => (
+    method => 1,
+    named  => [
+        query => Dict [
+            date    => NonEmptyStr,
+            dim     => Optional [NonEmptyStr],
+            lat     => NonEmptyStr,
+            lon     => NonEmptyStr,
+            api_key => Optional [NonEmptyStr],
+        ],
+    ],
+    named_to_list => 1,
+);
+
+method get_planetary_earth_assets($query) {
+    return $self->_get_response(
+        route => '/planetary/earth/assets',
+        query => {
+            date          => $query->{date},
+            maybe dim     => $query->{dim},
+            lat           => $query->{lat},
+            lon           => $query->{lon},
+            maybe api_key => $query->{api_key},
+        }
+    );
+}
+
+signature_for get_planetary_earth_imagery => (
+    method => 1,
+    named  => [
+        query => Dict [
+            cloud_score => Optional [NonEmptyStr],
+            date        => NonEmptyStr,
+            dim         => Optional [NonEmptyStr],
+            lat         => NonEmptyStr,
+            lon         => NonEmptyStr,
+            api_key     => Optional [NonEmptyStr],
+        ],
+    ],
+    named_to_list => 1,
+);
+
+method get_planetary_earth_imagery($query) {
+    return $self->_get_response(
+        route => '/planetary/earth/imagery',
+        query => {
+            maybe cloud_score => $query->{cloud_score},
+            date              => $query->{date},
+            maybe dim         => $query->{dim},
+            lat               => $query->{lat},
+            lon               => $query->{lon},
+            maybe api_key     => $query->{api_key},
+        }
+    );
 }
 
 __END__
@@ -272,6 +290,11 @@ __END__
         api_key => 'your_api_key',
     );
 
+=head1 DESCRIPTION
+
+This project is a Perl client for the NASA API. It is generated from a
+full OpenAPI 3.0.0 specification, which can be found at F<nasa/openapi.yaml>.
+
 =head1 METHODS
 
 
@@ -279,12 +302,13 @@ __END__
 =head2 C<get_planetary_apod>
 
     my $result = $nasa->get_planetary_apod(
-            count => $count,
-            date => $date,
-            end_date => $end_date,
+        query => {
+            count      => $count,
+            date       => $date,
+            end_date   => $end_date,
             start_date => $start_date,
-            thumbs => $thumbs,
-        ],
+            thumbs     => $thumbs,
+        } ],
     );
 
 Method for C</planetary/apod>.
@@ -334,11 +358,12 @@ Optional.
 =head2 C<get_planetary_earth_assets>
 
     my $result = $nasa->get_planetary_earth_assets(
+        query => {
             date => $date,
-            dim => $dim,
-            lat => $lat,
-            lon => $lon,
-        ],
+            dim  => $dim,
+            lat  => $lat,
+            lon  => $lon,
+        } ],
     );
 
 Method for C</planetary/earth/assets>.
@@ -385,12 +410,13 @@ Required.
 =head2 C<get_planetary_earth_imagery>
 
     my $result = $nasa->get_planetary_earth_imagery(
+        query => {
             cloud_score => $cloud_score,
-            date => $date,
-            dim => $dim,
-            lat => $lat,
-            lon => $lon,
-        ],
+            date        => $date,
+            dim         => $dim,
+            lat         => $lat,
+            lon         => $lon,
+        } ],
     );
 
 Method for C</planetary/earth/imagery>.
