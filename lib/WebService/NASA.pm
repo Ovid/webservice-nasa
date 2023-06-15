@@ -288,6 +288,15 @@ full OpenAPI 3.0.0 specification, which can be found at F<nasa/openapi.yaml>.
 
 =head1 METHODS
 
+In addition to the arugments specified below for each method, all methods take
+an I<optional> API key. If you do not provide one, the api key supplied in the
+contructor will be used. If you did not supply one to the contructor,
+C<DEMO_KEY> will be used. Note that the C<DEMO_KEY> is rate limited to 30
+requests per ip address per hour and 50 requests per ip address per day.
+
+Passing in an API key is useful if you have multiple keys and want to use a
+different one for a specific request.
+
 
 
 =head2 C<get_planetary_apod>
@@ -340,6 +349,7 @@ Return the URL of video thumbnail. If an APOD is not a video, this parameter is 
 
 Optional.
 
+
 =back
 
 
@@ -389,6 +399,7 @@ Required.
 Longitude
 
 Required.
+
 
 =back
 
@@ -456,6 +467,7 @@ Required.
 Longitude
 
 Required.
+
 
 =back
 
