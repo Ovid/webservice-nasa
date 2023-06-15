@@ -19,6 +19,8 @@ use Template;
 use YAML::XS qw(Load);
 use autodie  qw(:all);
 
+our $VERSION = '0.1';
+
 use WebService::NASA::Moose types => [
     qw(
       Bool
