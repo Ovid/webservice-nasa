@@ -252,6 +252,26 @@ method get_neo_rest_v1_feed($query) {
     );
 }
 
+signature_for get_neo_rest_v1_neo_browse => (
+    method => 1,
+    named  => [
+        page    => Optional [NonEmptyStr],
+        size    => Optional [NonEmptyStr],
+        api_key => Optional [NonEmptyStr],
+    ],
+);
+
+method get_neo_rest_v1_neo_browse($query) {
+    return $self->_get_response(
+        route => '/neo/rest/v1/neo/browse',
+        query => {
+            maybe page    => $query->{page},
+            maybe size    => $query->{size},
+            maybe api_key => $query->{api_key},
+        }
+    );
+}
+
 signature_for get_planetary_apod => (
     method => 1,
     named  => [
@@ -381,6 +401,38 @@ Optional.
 =item * C<start_date> 
 
 Start date of APOD images to retrieve
+
+Optional.
+
+
+=back
+
+
+
+=head2 C<get_neo_rest_v1_neo_browse>
+
+    my $result = $nasa->get_neo_rest_v1_neo_browse(
+        page => $page,
+        size => $size,
+    );
+
+Method for C</neo/rest/v1/neo/browse>.
+
+Browse the overall Asteroid data-set
+
+Arguments:
+
+=over 4
+
+=item * C<page> 
+
+Page number of query
+
+Optional.
+
+=item * C<size> 
+
+Number of elements per page
 
 Optional.
 
