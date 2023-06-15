@@ -125,6 +125,29 @@ method _get_response( $route, $query ) {
         return;
     }
 
+    if ( $self->validate_request ) {
+		my ($result, $errors, $warnings) = $self->_validator->validate_request(
+			method       => 'GET',
+			openapi_path => $route,
+			parameters   => {
+                query => $query,
+            },
+		);
+        if ( !$result ) {
+            my @errors = '';
+            foreach my $error (@$errors) {
+                push @errors,
+                  "Bad request for route: $url. " . $error->to_string . ': ' . join "\n\t" => @{ $error->context };
+            }
+            $errors = join "\n" => @errors;
+            if ( $self->strict ) {
+                croak $errors;
+            }
+            else {
+                carp $errors;
+            }
+        }
+	}
     my $response;
     $self->_set_is_timeout(0);
     if ( timeout_call( $self->timeout, sub { $response = $self->_GET($url) } ) ) {
