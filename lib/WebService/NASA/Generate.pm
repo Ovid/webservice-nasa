@@ -2,16 +2,19 @@ package WebService::NASA::Generate;
 
 # ABSTRACT: Generate WebService::NASA modules from OpenAPI
 
+our $VERSION   = '0.1';
+our $AUTHORITY = 'cpan:OVID';
+
 use v5.20.0;
 use warnings;
-use Carp             qw(croak);
-use Cpanel::JSON::XS qw(encode_json);
+use Carp                qw(croak);
+use Cpanel::JSON::XS    qw(encode_json);
 use CodeGen::Protection qw(
   create_protected_code
   rewrite_code
 );
 use Data::Dumper;
-use Data::Walk qw(walk);
+use Data::Walk  qw(walk);
 use File::Slurp qw(read_file);
 use JSONSchema::Validator;
 use Path::Tiny 'path';
@@ -20,8 +23,6 @@ use String::Util qw(trim);
 use Template;
 use YAML::XS qw(Load);
 use autodie  qw(:all);
-
-our $VERSION = '0.1';
 
 use WebService::NASA::Moose types => [
     qw(
