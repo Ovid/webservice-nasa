@@ -1,8 +1,13 @@
 #!/usr/bin/env perl
 
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 948f267e28629d574aa34001afb9eafc
+
 # Because the NASA services can be unreliable, we use a local cache of
 # the response. This test is primarily to validate that our OpenAPI spec is
 # working
+#
+# If you wish to extend these tests, do so after the final
+# CodeGen::Protection::Format::Perl marker and before done_testing().
 
 use lib 'lib', 't/lib';
 use Test::Most;
@@ -31,8 +36,6 @@ subtest 'Validate Response via OpenAPI' => sub {
     is $nasa->requests_remaining, $limit_remaining, 'requests_remaining matches headers';
 };
 
-done_testing;
-
 sub default {
     return <<'END';
 HTTP/1.1 200 OK
@@ -56,3 +59,7 @@ X-XSS-Protection: 1; mode=block
 pretend this is binary content
 END
 }
+
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 948f267e28629d574aa34001afb9eafc
+
+done_testing;

@@ -1,8 +1,13 @@
 #!/usr/bin/env perl
 
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: fd119c68d30d12feffed71b9de6f230f
+
 # Because the NASA services can be unreliable, we use a local cache of
 # the response. This test is primarily to validate that our OpenAPI spec is
 # working
+#
+# If you wish to extend these tests, do so after the final
+# CodeGen::Protection::Format::Perl marker and before done_testing().
 
 use lib 'lib', 't/lib';
 use Test::Most;
@@ -53,8 +58,6 @@ subtest 'Validate Response via OpenAPI' => sub {
     is $nasa->requests_remaining, $limit_remaining, 'requests_remaining matches headers';
 };
 
-done_testing;
-
 sub default {
     return <<'END';
 HTTP/1.1 200 OK
@@ -75,6 +78,10 @@ X-Ratelimit-Remaining: 1993
 X-Vcap-Request-Id: 4bf471c4-27be-43d0-5dc9-1cc7fb1b9187
 X-XSS-Protection: 1; mode=block
 
-[{"hdurl":"https://apod.nasa.gov/apod/image/2101/2020_12_16_Kujal_Jizni_Pol_1500px-3.png","url":"https://apod.nasa.gov/apod/image/2101/2020_12_16_Kujal_Jizni_Pol_1500px-3.jpg","copyright":"Petr Horalek","date":"2021-01-01","title":"Galaxies and the South Celestial Pole","media_type":"image","explanation":"The South Celestial Pole is easy to spot in star trail images of the southern sky.","service_version":"v1"},{"explanation":"In the mid 19th century, one of the first photographic technologies used to record the lunar surface was the wet-plate collodion process, notably employed by British astronomer Warren De la Rue.","media_type":"image","service_version":"v1","url":"https://apod.nasa.gov/apod/image/2101/WetCollodionLunar112820SMO_1024.jpg","hdurl":"https://apod.nasa.gov/apod/image/2101/WetCollodionLunar112820SMO.jpg","title":"21st Century Wet Collodion Moon","copyright":"Mike Smolinsky","date":"2021-01-02"}]
+[{"hdurl":"https://apod.nasa.gov/apod/image/2101/2020_12_16_Kujal_Jizni_Pol_1500px-3.png","copyright":"Petr Horalek","explanation":"The South Celestial Pole is easy to spot in star trail images of the southern sky.","media_type":"image","title":"Galaxies and the South Celestial Pole","service_version":"v1","date":"2021-01-01","url":"https://apod.nasa.gov/apod/image/2101/2020_12_16_Kujal_Jizni_Pol_1500px-3.jpg"},{"service_version":"v1","date":"2021-01-02","hdurl":"https://apod.nasa.gov/apod/image/2101/WetCollodionLunar112820SMO.jpg","copyright":"Mike Smolinsky","media_type":"image","explanation":"In the mid 19th century, one of the first photographic technologies used to record the lunar surface was the wet-plate collodion process, notably employed by British astronomer Warren De la Rue.","title":"21st Century Wet Collodion Moon","url":"https://apod.nasa.gov/apod/image/2101/WetCollodionLunar112820SMO_1024.jpg"}]
 END
 }
+
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: fd119c68d30d12feffed71b9de6f230f
+
+done_testing;

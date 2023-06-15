@@ -1,5 +1,12 @@
 package WebService::NASA;
 
+our $VERSION   = '0.1';
+our $AUTHORITY = 'cpan:OVID';
+
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: c9fa013647563952f2b49b88b15b5d69
+
+package WebService::NASA;
+
 # ABSTRACT: Perl interface to NASA's public APIs
 
 # see also https://api.nasa.gov/
@@ -27,8 +34,6 @@ use Mojo::UserAgent;
 use Mojo::URL;
 use Cpanel::JSON::XS;
 use Type::Params -sigs;
-
-our $VERSION = '0.4';
 
 param [qw/debug raw testing strict/] => (
     isa     => Bool,
@@ -92,7 +97,11 @@ field _nasa_schema => (
 
 field _validator => (
     isa     => InstanceOf ['JSONSchema::Validator::OAS30'],
-    default => method() { JSONSchema::Validator->new( schema => $self->_nasa_schema ) },
+    default => method() {
+
+        # XXX temp hack to avoid a bootstrapping issue
+        return JSONSchema::Validator->new( resource => 'file:///Users/ovid/projects/perl/webservice-nasa/nasa/openapi.yaml' );
+    },
 );
 
 field _base_url => (
@@ -115,6 +124,8 @@ signature_for _get_response => (
 
 method _get_response( $route, $query ) {
     $query->{api_key} = $self->_api_key;
+
+    $route =~ s/{(\w+)}/delete $query->{$1}/ge;
     my $url = $self->_url( $route, $query );
 
     my $requests_remaining = $self->requests_remaining;
@@ -248,6 +259,24 @@ method get_neo_rest_v1_feed($query) {
             maybe end_date   => $query->{end_date},
             maybe start_date => $query->{start_date},
             maybe api_key    => $query->{api_key},
+        }
+    );
+}
+
+signature_for get_neo_rest_v1_neo_asteroidid_ => (
+    method => 1,
+    named  => [
+        asteroidId => NonEmptyStr,
+        api_key    => Optional [NonEmptyStr],
+    ],
+);
+
+method get_neo_rest_v1_neo_asteroidid_($query) {
+    return $self->_get_response(
+        route => '/neo/rest/v1/neo/{asteroidId}/',
+        query => {
+            asteroidId    => $query->{asteroidId},
+            maybe api_key => $query->{api_key},
         }
     );
 }
@@ -403,6 +432,31 @@ Optional.
 Start date of APOD images to retrieve
 
 Optional.
+
+
+=back
+
+
+
+=head2 C<get_neo_rest_v1_neo_asteroidid_>
+
+    my $result = $nasa->get_neo_rest_v1_neo_asteroidid_(
+        asteroidId => $asteroidId,
+    );
+
+Method for C</neo/rest/v1/neo/{asteroidId}/>.
+
+Lookup a specific Asteroid based on its NASA JPL small body (SPK-ID) ID
+
+Arguments:
+
+=over 4
+
+=item * C<asteroidId> 
+
+Asteroid SPK-ID correlates to the NASA JPL small body
+
+Required.
 
 
 =back
@@ -613,4 +667,4 @@ Required.
 
 =back
 
-
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: c9fa013647563952f2b49b88b15b5d69

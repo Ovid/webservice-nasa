@@ -1,8 +1,9 @@
-#!/usr/bin/env perl
-
 # Because the NASA services can be unreliable, we use a local cache of
 # the response. This test is primarily to validate that our OpenAPI spec is
 # working
+#
+# If you wish to extend these tests, do so after the final
+# CodeGen::Protection::Format::Perl marker and before done_testing().
 
 use lib 'lib', 't/lib';
 use Test::Most;
@@ -33,8 +34,6 @@ subtest 'Validate Response via OpenAPI' => sub {
     eq_or_diff $response, $expected, '[% method %] response is decoded correctly' if $nasa->should_decode;
     is $nasa->requests_remaining, $limit_remaining, 'requests_remaining matches headers';
 };
-
-done_testing;
 
 sub default {
     return <<'END';

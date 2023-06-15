@@ -4,8 +4,13 @@ use v5.20.0;
 use warnings;
 use Carp             qw(croak);
 use Cpanel::JSON::XS qw(encode_json);
+use CodeGen::Protection qw(
+  create_protected_code
+  rewrite_code
+);
 use Data::Dumper;
 use Data::Walk qw(walk);
+use File::Slurp qw(read_file);
 use JSONSchema::Validator;
 use Path::Tiny 'path';
 use Perl::Tidy;
@@ -22,8 +27,9 @@ use WebService::NASA::Moose types => [
     )
 ];
 
-param openapi => ( isa => NonEmptyStr );
-param debug   => ( isa => Bool, default => 0 );
+param openapi                       => ( isa => NonEmptyStr );
+param [qw/debug overwrite verbose/] => ( isa => Bool, default => 0 );
+param write                         => ( isa => Bool, default => 1 );
 
 field _template => (
     isa     => InstanceOf ['Template'],
@@ -78,14 +84,44 @@ method _write_webservice_nasa_module($openapi) {
     $output = $self->_tidy_code($output);
 
     my $filename = 'lib/WebService/NASA.pm';
-    if ($self->debug) {
+    $self->_write_perl( $output, $filename );
+}
+
+method _write_perl( $output, $filename ) {
+    if ( $self->debug ) {
         say '-' x 80;
         say "Writing $filename";
         say $output;
     }
     else {
-        open my $fh, '>', $filename;
-        print {$fh} $output;
+        my $original = -e $filename ? read_file($filename) : '';
+        if ( $self->verbose && !$original ) {
+            say "New file $filename.";
+        }
+        if ( $self->write ) {
+            if ( $self->verbose ) {
+                say "Writing $filename";
+            }
+            open my $fh, '>', $filename;
+            print {$fh} $self->_protected_code( $original, $output );
+        }
+    }
+}
+
+method _protected_code( $existing_code, $protected_code ) {
+    if ($existing_code) {
+        return rewrite_code(
+            type           => 'Perl',
+            existing_code  => $existing_code,
+            protected_code => $protected_code,
+            overwrite      => $self->overwrite,
+        );
+    }
+    else {
+        return create_protected_code(
+            type           => 'Perl',
+            protected_code => $protected_code,
+        );
     }
 }
 
@@ -148,15 +184,7 @@ method _write_test_for_method( $method_name, $endpoint ) {
     $output = $self->_tidy_code($output);
 
     my $filename = "t/${method_name}.t";
-    if ( $self->debug ) {
-        say '-' x 80;
-        say "Writing $filename";
-        #say $output;
-    }
-    else {
-        open my $fh, '>', $filename;
-        print {$fh} $output;
-    }
+    $self->_write_perl( $output, $filename );
 }
 
 method _write_schema_module( $raw_yaml, $hashref ) {
@@ -172,15 +200,7 @@ method _write_schema_module( $raw_yaml, $hashref ) {
     $output = $self->_tidy_code($output);
 
     my $filename = 'lib/WebService/NASA/Schema.pm';
-    if ( $self->debug ) {
-        say '-' x 80;
-        say "Writing $filename";
-        #say $output;
-    }
-    else {
-        open my $fh, '>', $filename;
-        print {$fh} $output;
-    }
+    $self->_write_perl( $output, $filename );
 }
 
 method _perl_to_string($perl) {
@@ -263,6 +283,7 @@ method _load_template($filename) {
 
 method _make_method_name($string) {
     $string = trim( lc($string) );
+    $string =~ s/[{}]//g;
     $string =~ s/\s+/_/g;
     $string =~ tr/-/_/;
     $string =~ tr/\//_/;

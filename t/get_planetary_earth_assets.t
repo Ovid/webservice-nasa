@@ -1,8 +1,13 @@
 #!/usr/bin/env perl
 
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 239da008945a9f18534ac5aef3b23e3d
+
 # Because the NASA services can be unreliable, we use a local cache of
 # the response. This test is primarily to validate that our OpenAPI spec is
 # working
+#
+# If you wish to extend these tests, do so after the final
+# CodeGen::Protection::Format::Perl marker and before done_testing().
 
 use lib 'lib', 't/lib';
 use Test::Most;
@@ -41,8 +46,6 @@ subtest 'Validate Response via OpenAPI' => sub {
     is $nasa->requests_remaining, $limit_remaining, 'requests_remaining matches headers';
 };
 
-done_testing;
-
 sub default {
     return <<'END';
 HTTP/1.1 200 OK
@@ -63,6 +66,10 @@ X-Ratelimit-Remaining: 1993
 X-Vcap-Request-Id: 4bf471c4-27be-43d0-5dc9-1cc7fb1b9187
 X-XSS-Protection: 1; mode=block
 
-{"service_version":"v5000","date":"2014-02-04T03:30:01.210000","url":"https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/ea0061d06542c151df676804213b0e32-e13a44f7bfe19cc2a7f5c23a20921213:getPixels","id":"LANDSAT/LC08/C01/T1_SR/LC08_127059_20140204","resource":{"dataset":"LANDSAT/LC08/C01/T1_SR","planet":"earth"}}
+{"id":"LANDSAT/LC08/C01/T1_SR/LC08_127059_20140204","date":"2014-02-04T03:30:01.210000","resource":{"dataset":"LANDSAT/LC08/C01/T1_SR","planet":"earth"},"service_version":"v5000","url":"https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/ea0061d06542c151df676804213b0e32-e13a44f7bfe19cc2a7f5c23a20921213:getPixels"}
 END
 }
+
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 239da008945a9f18534ac5aef3b23e3d
+
+done_testing;
