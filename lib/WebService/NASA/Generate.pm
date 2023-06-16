@@ -14,7 +14,6 @@ use CodeGen::Protection qw(
   rewrite_code
 );
 use Data::Dumper;
-use Data::Walk  qw(walk);
 use File::Slurp qw(read_file);
 use JSONSchema::Validator;
 use Path::Tiny 'path';
@@ -24,6 +23,7 @@ use Template;
 use YAML::XS qw(Load);
 use autodie  qw(:all);
 
+use WebService::NASA::DataWalk qw(walk);
 use WebService::NASA::Moose types => [
     qw(
       Bool
@@ -241,10 +241,11 @@ method _get_openapi() {
     # resolve all references
     walk sub {
         return unless '$ref' eq $_;
-        unless ( 'HASH' eq $Data::Walk::type ) {
-            croak "Expected HASH, got " . ref $Data::Walk::type;
+        unless ( 'HASH' eq $WebService::NASA::DataWalk::type ) {
+            croak "Expected HASH, got " . ref $WebService::NASA::DataWalk::type;
         }
-        my $container = $Data::Walk::container;
+		no warnings 'once';
+        my $container = $WebService::NASA::DataWalk::container;
         my $ref       = delete $container->{'$ref'};
         my ( undef, undef, $type, $name ) = split '/', $ref;
         my $reference = $openapi->{components}{$type}{$name} or croak "Could not resolve $ref";
