@@ -116,7 +116,7 @@ sub __recurse {
         my $blessed = Scalar::Util::blessed($item);
 
         # Avoid fancy overloading stuff.
-        bless $item if $blessed;
+        bless $item, __PACKAGE__ if $blessed;
         $address = Scalar::Util::refaddr($item);
 
         $seen = $options->{seen}->{$address}++;
