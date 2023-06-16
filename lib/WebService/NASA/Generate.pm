@@ -100,7 +100,7 @@ method _write_perl( $output, $filename ) {
         say $output;
     }
     else {
-        my $original = -e $filename ? read_file($filename) : '';
+        my $original = -e $filename ? read_file($filename) : $output;
         if ( $self->verbose && !$original ) {
             say "New file $filename.";
         }
@@ -115,20 +115,12 @@ method _write_perl( $output, $filename ) {
 }
 
 method _protected_code( $existing_code, $protected_code ) {
-    if ($existing_code) {
-        return rewrite_code(
-            type           => 'Perl',
-            existing_code  => $existing_code,
-            protected_code => $protected_code,
-            overwrite      => $self->overwrite,
-        );
-    }
-    else {
-        return create_protected_code(
-            type           => 'Perl',
-            protected_code => $protected_code,
-        );
-    }
+    return rewrite_code(
+        type           => 'Perl',
+        existing_code  => $existing_code,
+        protected_code => $protected_code,
+        overwrite      => $self->overwrite,
+    );
 }
 
 method _write_test_for_method( $method_name, $endpoint ) {
@@ -177,6 +169,9 @@ method _write_test_for_method( $method_name, $endpoint ) {
     # We use ->canonical to ensure that the output is always the same.
     state $json = Cpanel::JSON::XS->new->utf8->canonical;
     my $body = ref $response_example ? $json->encode($response_example) : $response_example;
+
+    my $filename = "t/${method_name}.t";
+
     $template->process(
         $self->_load_template('test_file.tt'),
         {
@@ -191,7 +186,22 @@ method _write_test_for_method( $method_name, $endpoint ) {
     ) or die $template->error;
     $output = $self->_tidy_code($output);
 
-    my $filename = "t/${method_name}.t";
+    if ( !-e $filename ) {
+
+        # OK, this test doesn't exist. So we need to use the test_file_new.tt
+        # template to insert the test code *between* the codegen markers. This
+        # allows us to insert the test code in the correct place.
+        my $template_name = 'test_file_new.tt';
+        my $new_test      = $output;
+        $output = '';
+        $template->process(
+            $self->_load_template('test_file_new.tt'),
+            {
+                new_test => $new_test,
+            },
+            \$output
+        ) or die $template->error;
+    }
     $self->_write_perl( $output, $filename );
 }
 
@@ -257,7 +267,7 @@ method _get_openapi() {
         unless ( 'HASH' eq $WebService::NASA::DataWalk::type ) {
             croak "Expected HASH, got " . ref $WebService::NASA::DataWalk::type;
         }
-		no warnings 'once';
+        no warnings 'once';
         my $container = $WebService::NASA::DataWalk::container;
         my $ref       = delete $container->{'$ref'};
         my ( undef, undef, $type, $name ) = split '/', $ref;
