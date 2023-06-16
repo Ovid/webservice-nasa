@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 22d89e28564a2ead39b95283ef0deeb4
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: daf3b0820bf39b1543b87d7fb9e2f0ec
 
 # Because the NASA services can be unreliable, we use a local cache of
 # the response. This test is primarily to validate that our OpenAPI spec is
@@ -1268,7 +1268,12 @@ subtest 'Validate Response via OpenAPI' => sub {
             ],
         },
     };
-    eq_or_diff $response, $expected, 'get_neo_rest_v1_feed response is decoded correctly' if $nasa->should_decode;
+    if ( $nasa->is_json ) {
+        eq_or_diff $response, $expected, 'get_neo_rest_v1_feed response is decoded correctly' if $nasa->is_json;
+    }
+    else {
+        ok defined $response, 'get_neo_rest_v1_feed response is defined';
+    }
     is $nasa->requests_remaining, $limit_remaining, 'requests_remaining matches headers';
 };
 
@@ -1296,6 +1301,6 @@ X-XSS-Protection: 1; mode=block
 END
 }
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 22d89e28564a2ead39b95283ef0deeb4
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: daf3b0820bf39b1543b87d7fb9e2f0ec
 
 done_testing;

@@ -33,7 +33,12 @@ subtest 'Validate Response via OpenAPI' => sub {
     '[% method %] survived OpenAPI validation';
 
     my $expected = [% expected_response %];
-    eq_or_diff $response, $expected, '[% method %] response is decoded correctly' if $nasa->should_decode;
+    if ( $nasa->is_json ) {
+        eq_or_diff $response, $expected, '[% method %] response is decoded correctly' if $nasa->is_json
+    }
+    else {
+        ok defined $response, '[% method %] response is defined';
+    }
     is $nasa->requests_remaining, $limit_remaining, 'requests_remaining matches headers';
 };
 
