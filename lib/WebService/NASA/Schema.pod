@@ -272,6 +272,7 @@ The full schema is defined as:
               in: path
               description: Asteroid SPK-ID correlates to the NASA JPL small body
               required: true
+              example: 3542519
               schema:
                 type: string
           responses:

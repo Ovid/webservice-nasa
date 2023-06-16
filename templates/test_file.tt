@@ -22,6 +22,8 @@ subtest 'Validate Response via OpenAPI' => sub {
     my $response; 
     lives_ok { 
         $response = $nasa->[% method %](
+        [%- # XXX This is an ugly hack. We're using 'example' to determine if the
+            # key is a parameter or not. Can use just use 'required' here? -%]
         [%- FOREACH parameter IN parameters;
                 IF parameter.value.exists('example') -%]
             [% parameter.key %] => '[% parameter.value.example %]',[% END %]

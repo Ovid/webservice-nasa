@@ -3,7 +3,7 @@ package WebService::NASA;
 our $VERSION   = '0.1';
 our $AUTHORITY = 'cpan:OVID';
 
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: a94d278e6fafb4e5f1cd38a383e06c74
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: e4c24fedc27fcd2058227f9a74a33dcd
 
 # ABSTRACT: Perl interface to NASA's public APIs
 
@@ -25,7 +25,7 @@ use WebService::NASA::Moose types => [
 ];
 
 use JSONSchema::Validator;
-use PerlX::Maybe;
+use PerlX::Maybe   qw(maybe);
 use Sys::SigAction qw(timeout_call);
 use Mojo::UserAgent;
 use Mojo::URL;
@@ -137,7 +137,10 @@ signature_for _get_response => (
 method _get_response( $route, $query ) {
     $query->{api_key} = $self->_api_key;
 
-    $route =~ s/{(\w+)}/delete $query->{$1}/ge;
+    my $path = {};
+    $route =~ s/{(\w+)}/
+        $path->{$1} = delete $query->{$1}
+    /gex;
     my $url = $self->_url( $route, $query );
 
     my $requests_remaining = $self->requests_remaining;
@@ -149,10 +152,12 @@ method _get_response( $route, $query ) {
     }
 
     if ( $self->validate_request ) {
+        my $have_path = keys $path->%*;
         my ( $result, $errors, $warnings ) = $self->_validator->validate_request(
             method       => 'GET',
             openapi_path => $route,
             parameters   => {
+                path  => $path,
                 query => $query,
             },
         );
@@ -679,4 +684,4 @@ Required.
 
 =back
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: a94d278e6fafb4e5f1cd38a383e06c74
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: e4c24fedc27fcd2058227f9a74a33dcd

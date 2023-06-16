@@ -2,6 +2,8 @@
 
 #<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 22d89e28564a2ead39b95283ef0deeb4
 
+[% new_test %]
+
 #>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 22d89e28564a2ead39b95283ef0deeb4
 
 done_testing;

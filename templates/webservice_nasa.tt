@@ -18,7 +18,7 @@ use WebService::NASA::Moose types => [
 ];
 
 use JSONSchema::Validator;
-use PerlX::Maybe;
+use PerlX::Maybe qw(maybe);
 use Sys::SigAction qw(timeout_call);
 use Mojo::UserAgent;
 use Mojo::URL;
@@ -130,7 +130,10 @@ signature_for _get_response => (
 method _get_response( $route, $query ) {
     $query->{api_key} = $self->_api_key;
 
-    $route =~ s/{(\w+)}/delete $query->{$1}/ge;
+    my $path = {};
+    $route =~ s/{(\w+)}/
+        $path->{$1} = delete $query->{$1}
+    /gex;
     my $url = $self->_url( $route, $query );
 
     my $requests_remaining = $self->requests_remaining;
@@ -142,13 +145,15 @@ method _get_response( $route, $query ) {
     }
 
     if ( $self->validate_request ) {
-		my ($result, $errors, $warnings) = $self->_validator->validate_request(
-			method       => 'GET',
-			openapi_path => $route,
-			parameters   => {
+        my  $have_path = keys $path->%*;
+        my ( $result, $errors, $warnings ) = $self->_validator->validate_request(
+            method       => 'GET',
+            openapi_path => $route,
+            parameters   => {
+                path  => $path,
                 query => $query,
             },
-		);
+        );
         if ( !$result ) {
             my @errors = '';
             foreach my $error (@$errors) {
@@ -163,7 +168,7 @@ method _get_response( $route, $query ) {
                 carp $errors;
             }
         }
-	}
+    }
     my $response;
     $self->_set_is_timeout(0);
     if ( timeout_call( $self->timeout, sub { $response = $self->_GET($url) } ) ) {
