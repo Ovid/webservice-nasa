@@ -262,7 +262,7 @@ Arguments:
 
     Required.
 
-\#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: c9fa013647563952f2b49b88b15b5d69
+\#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 7756a2c4b583e668a6da50a37e843674
 
 # AUTHOR
 

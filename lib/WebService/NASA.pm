@@ -3,7 +3,7 @@ package WebService::NASA;
 our $VERSION   = '0.1';
 our $AUTHORITY = 'cpan:OVID';
 
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: c9fa013647563952f2b49b88b15b5d69
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 75d1c28c035d5bc13656bee8c3f46f11
 
 package WebService::NASA;
 
@@ -34,6 +34,9 @@ use Mojo::UserAgent;
 use Mojo::URL;
 use Cpanel::JSON::XS;
 use Type::Params -sigs;
+use File::Spec::Functions 'catfile';
+use Path::Tiny;
+use File::ShareDir 'dist_dir';
 
 param [qw/debug raw testing strict/] => (
     isa     => Bool,
@@ -99,8 +102,20 @@ field _validator => (
     isa     => InstanceOf ['JSONSchema::Validator::OAS30'],
     default => method() {
 
-        # XXX temp hack to avoid a bootstrapping issue
-        return JSONSchema::Validator->new( resource => 'file:///Users/ovid/projects/perl/webservice-nasa/nasa/openapi.yaml' );
+        # If there is a nasa/openapi.yaml file, use that because we assume
+        # we're in development mode. Otherwise, use the one in the dist
+        my $schema
+          = $self->_in_development_directory
+          ? path( catfile( 'nasa', 'openapi.yaml' ) )->absolute
+          : catfile( dist_dir('WebService-NASA'), 'openapi.yaml' );
+        return JSONSchema::Validator->new( resource => "file://$schema" );
+    },
+);
+
+field _in_development_directory => (
+    isa     => Bool,
+    default => method() {
+        return ( -d 'nasa' && -e catfile( 'nasa', 'openapi.yaml' ) && -d '.git' );
     },
 );
 
@@ -667,4 +682,4 @@ Required.
 
 =back
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: c9fa013647563952f2b49b88b15b5d69
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 75d1c28c035d5bc13656bee8c3f46f11

@@ -27,6 +27,9 @@ use Mojo::UserAgent;
 use Mojo::URL;
 use Cpanel::JSON::XS;
 use Type::Params -sigs;
+use File::Spec::Functions 'catfile';
+use Path::Tiny;
+use File::ShareDir 'dist_dir';
 
 param [qw/debug raw testing strict/] => (
     isa     => Bool,
@@ -90,9 +93,22 @@ field _nasa_schema => (
 
 field _validator => (
     isa     => InstanceOf ['JSONSchema::Validator::OAS30'],
-    default => method() { 
-        # XXX temp hack to avoid a bootstrapping issue
-        return JSONSchema::Validator->new(resource => 'file:///Users/ovid/projects/perl/webservice-nasa/nasa/openapi.yaml');
+    default => method() {
+
+        # If there is a nasa/openapi.yaml file, use that because we assume
+        # we're in development mode. Otherwise, use the one in the dist
+        my $schema
+          = $self->_in_development_directory
+          ? path( catfile( 'nasa', 'openapi.yaml' ) )->absolute
+          : catfile( dist_dir( 'WebService-NASA' ), 'openapi.yaml' );
+        return JSONSchema::Validator->new( resource => "file://$schema" );
+    },
+);
+
+field _in_development_directory => (
+    isa     => Bool,
+    default => method() {
+        return ( -d 'nasa' && -e catfile( 'nasa', 'openapi.yaml' ) && -d '.git' );
     },
 );
 
