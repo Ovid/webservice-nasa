@@ -455,4 +455,9 @@ Arguments:
 
 =back
 
+=head1 SEE ALSO
+
+The unofficial NASA OpenAPI specification can be found at
+L<https://github.com/Ovid/nasa-openapi>.
+
 [% END %]

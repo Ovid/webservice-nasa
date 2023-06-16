@@ -3,7 +3,7 @@ package WebService::NASA;
 our $VERSION   = '0.1';
 our $AUTHORITY = 'cpan:OVID';
 
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: b60b34c7cadff7c6b81aed0fb1438edb
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 497283710fc1c4aa8b01e317e7926a9f
 
 # ABSTRACT: Perl interface to NASA's public APIs
 
@@ -568,6 +568,11 @@ Optional.
 
 =back
 
+=head1 SEE ALSO
+
+The unofficial NASA OpenAPI specification can be found at
+L<https://github.com/Ovid/nasa-openapi>.
+
 
 
 =head2 C<get_neo_rest_v1_neo_asteroidid>
@@ -592,6 +597,11 @@ Required.
 
 
 =back
+
+=head1 SEE ALSO
+
+The unofficial NASA OpenAPI specification can be found at
+L<https://github.com/Ovid/nasa-openapi>.
 
 
 
@@ -624,6 +634,11 @@ Optional.
 
 
 =back
+
+=head1 SEE ALSO
+
+The unofficial NASA OpenAPI specification can be found at
+L<https://github.com/Ovid/nasa-openapi>.
 
 
 
@@ -680,6 +695,11 @@ Optional.
 
 =back
 
+=head1 SEE ALSO
+
+The unofficial NASA OpenAPI specification can be found at
+L<https://github.com/Ovid/nasa-openapi>.
+
 
 
 =head2 C<get_planetary_earth_assets>
@@ -730,6 +750,11 @@ Required.
 
 
 =back
+
+=head1 SEE ALSO
+
+The unofficial NASA OpenAPI specification can be found at
+L<https://github.com/Ovid/nasa-openapi>.
 
 
 
@@ -799,4 +824,9 @@ Required.
 
 =back
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: b60b34c7cadff7c6b81aed0fb1438edb
+=head1 SEE ALSO
+
+The unofficial NASA OpenAPI specification can be found at
+L<https://github.com/Ovid/nasa-openapi>.
+
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 497283710fc1c4aa8b01e317e7926a9f
