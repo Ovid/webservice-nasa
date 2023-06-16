@@ -1,6 +1,9 @@
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: bff99318c0c732bbf81c997ea67edee2
-
 package WebService::NASA;
+
+our $VERSION   = '0.1';
+our $AUTHORITY = 'cpan:OVID';
+
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: a8f0191d4cf253a510e2509a1e2ca54a
 
 # ABSTRACT: Perl interface to NASA's public APIs
 
@@ -676,4 +679,4 @@ Required.
 
 =back
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: bff99318c0c732bbf81c997ea67edee2
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: a8f0191d4cf253a510e2509a1e2ca54a

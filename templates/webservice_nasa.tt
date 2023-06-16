@@ -1,5 +1,3 @@
-package WebService::NASA;
-
 # ABSTRACT: Perl interface to NASA's public APIs
 
 # see also https://api.nasa.gov/
