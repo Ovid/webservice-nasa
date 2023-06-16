@@ -21,7 +21,103 @@ my $api = WebService::NASA->new(
 This project is a Perl client for the NASA API. It is generated from a
 full OpenAPI 3.0.0 specification, which can be found at `nasa/openapi.yaml`.
 
-# METHODS
+By default both the request and response are validated against the OpenAPI
+specification.
+
+Please see [https://api.nasa.gov](https://api.nasa.gov) for more information. You can sign up for
+a free API key there.
+
+# CONSTRUCTOR
+
+The following arguments may be passed to the constructor.
+
+- `api_key`
+
+    Optional. If not passed, we consult `$ENV{NASA_API_KEY}`. If that is not set,
+    we use `DEMO_KEY`. Note that the `DEMO_KEY` has a more severe rate limit.
+
+- `validate_request`
+
+    Optional. Defaults to true. If set to false, requests will not be validated.
+
+- `validate_response`
+
+    Optional. Defaults to true. If set to false, responses will not be validated.
+
+- `strict`
+
+    Optional. Defaults to false. If set to true, validation errors will be fatal.
+
+- `timeout`
+
+    Optional. Defaults to 30 seconds. The number of seconds to wait for a
+    response.
+
+- `debug`
+
+    Optional. Defaults to false. If set to true, request/response debug
+    information will be printed to `STDERR`.
+
+# RATE LIMITING
+
+[WebService::NASA](https://metacpan.org/pod/WebService%3A%3ANASA) does not handle rate limiting because your needs may vary.
+Instead, we provide two methods to help you manage rate limiting,
+`requests_remaining` and `last_request_time`. You can use these to
+to manager your own rate limiting.
+
+## Web Service Rate Limits
+
+Limits are placed on the number of API requests you may make using your API
+key. Rate limits may vary by service. If you have an API key, you have an
+_official_ hourly limit of 1,000 requests per hour. There is no clear
+documentation on the limits and we've seen it vary across APIs. For at least
+one API, the limit is 2,000 requests per hour.
+
+For each API key, these limits are applied across all api.nasa.gov API
+requests. Exceeding these limits will lead to your API key being temporarily
+blocked from making further requests. The block will automatically be lifted
+by waiting an hour. If you need higher rate limits, contact NASA.
+
+## DEMO\_KEY Rate Limits
+
+If you do not supply an API key, the `DEMO_KEY` will be used.
+
+This API key can be used for initially exploring APIs prior to signing up, but
+it has much lower rate limits, so you’re encouraged to signup for your own API
+key if you plan to use the API (signup is quick and easy). The rate limits for
+the `DEMO_KEY` are:
+
+- Hourly Limit: 30 requests per IP address per hour
+- Daily Limit: 50 requests per IP address per day
+
+# REGULAR METHODS
+
+Most of these methods are only valid _after_ you have called a `get_*` api
+method.
+
+## `requests_remaining`
+
+The number of requests remaining for the current hour, as determined by the
+`X-RateLimit-Remaining` header.
+
+## `last_request_time`
+
+The time of the last request as a unix timestamp.
+
+## `is_json`
+
+Returns true if the last response was `application/json`. The response is
+gauranteed to be JSON decoded. Otherwise, you must handle the response for
+yourself. For example, `GET /planetary/apod` returns an image.
+
+## `is_demo`
+
+Returns true if the `DEMO_KEY` is being used (i.e. no API key was passed to
+the constructor and no `$ENV{NASA_API_KEY}` was set). If the last request
+accepted an API key, this method will still return false if the instance did
+not have an API key available when constructed.
+
+# API METHODS
 
 In addition to the arugments specified below for each method, all methods take
 an _optional_ API key. If you do not provide one, the api key supplied in the
@@ -29,8 +125,18 @@ contructor will be used. If you did not supply one to the contructor,
 `DEMO_KEY` will be used. Note that the `DEMO_KEY` is rate limited to 30
 requests per ip address per hour and 50 requests per ip address per day.
 
-Passing in an API key is useful if you have multiple keys and want to use a
+Passing in an API key is useful if you have multiple keys and need to use a
 different one for a specific request.
+
+All requests return a raw response. For requests return `application/json`,
+this response will be the JSON decoded into a Perl data structure. For all
+else, the raw response will be returned.
+
+Because NASA has not provided a full OpenAPI specification, we cannot
+guarantee exactly what will be returned. We do our best to provide a
+specification, but we're very loose with it to avoid validation errors.
+
+To understand what is returned, please see [WenService::NASA::Spec](https://metacpan.org/pod/WenService%3A%3ANASA%3A%3ASpec).
 
 ## `get_neo_rest_v1_feed`
 
@@ -59,10 +165,10 @@ Arguments:
 
     Optional.
 
-## `get_neo_rest_v1_neo_asteroidid_`
+## `get_neo_rest_v1_neo_asteroidid`
 
 ```perl
-my $result = $nasa->get_neo_rest_v1_neo_asteroidid_(
+my $result = $nasa->get_neo_rest_v1_neo_asteroidid(
     asteroidId => $asteroidId,
 );
 ```
@@ -262,7 +368,7 @@ Arguments:
 
     Required.
 
-\#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 7756a2c4b583e668a6da50a37e843674
+\#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: b60b34c7cadff7c6b81aed0fb1438edb
 
 # AUTHOR
 
