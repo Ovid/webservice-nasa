@@ -18,7 +18,6 @@ use WebService::NASA::Moose types => [
       Undef
     )
 ];
-use WebService::NASA::Schema qw(get_nasa_schema);
 
 use JSONSchema::Validator;
 use PerlX::Maybe;
@@ -88,7 +87,7 @@ field _ua => (
 
 field _nasa_schema => (
     isa     => HashRef,
-    default => method() { get_nasa_schema() },
+    default => method() { $self->_validator->schema },
 );
 
 field _validator => (

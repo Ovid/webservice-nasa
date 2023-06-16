@@ -47,7 +47,7 @@ method run() {
     $self->_assert_valid_schema();
     my ( $raw_yaml, $openapi, $resolved ) = $self->_get_openapi;
 
-    $self->_write_schema_module( $raw_yaml, $openapi );
+    $self->_write_schema_documentation( $raw_yaml, $openapi );
     $self->_write_webservice_nasa_module($resolved);
 }
 
@@ -192,20 +192,30 @@ method _write_test_for_method( $method_name, $endpoint ) {
     $self->_write_perl( $output, $filename );
 }
 
-method _write_schema_module( $raw_yaml, $hashref ) {
+method _write_schema_documentation( $raw_yaml, $hashref ) {
     $raw_yaml =~ s/^/    /mg;    # indent
 
     # Print the template results to STDOUT
     my $template = $self->_template;
     $template->process(
         $self->_load_template('webservice_nasa_schema.tt'),
-        { raw_yaml => $raw_yaml, schema => $self->_perl_to_string($hashref) },
+        { raw_yaml => $raw_yaml },
         \my $output
     ) or die $template->error;
     $output = $self->_tidy_code($output);
 
-    my $filename = 'lib/WebService/NASA/Schema.pm';
-    $self->_write_perl( $output, $filename );
+    my $filename = 'lib/WebService/NASA/Schema.pod';
+    my $original = -e $filename ? read_file($filename) : '';
+    if ( $self->verbose && !$original ) {
+        say "New file $filename.";
+    }
+    if ( $self->write ) {
+        if ( $self->verbose ) {
+            say "Writing $filename";
+        }
+        open my $fh, '>', $filename;
+        print {$fh} $output;
+    }
 }
 
 method _perl_to_string($perl) {

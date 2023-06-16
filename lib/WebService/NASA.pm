@@ -1,9 +1,4 @@
-package WebService::NASA;
-
-our $VERSION   = '0.1';
-our $AUTHORITY = 'cpan:OVID';
-
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 75d1c28c035d5bc13656bee8c3f46f11
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: bff99318c0c732bbf81c997ea67edee2
 
 package WebService::NASA;
 
@@ -25,7 +20,6 @@ use WebService::NASA::Moose types => [
       Undef
     )
 ];
-use WebService::NASA::Schema qw(get_nasa_schema);
 
 use JSONSchema::Validator;
 use PerlX::Maybe;
@@ -95,7 +89,7 @@ field _ua => (
 
 field _nasa_schema => (
     isa     => HashRef,
-    default => method() { get_nasa_schema() },
+    default => method() { $self->_validator->schema },
 );
 
 field _validator => (
@@ -682,4 +676,4 @@ Required.
 
 =back
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 75d1c28c035d5bc13656bee8c3f46f11
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: bff99318c0c732bbf81c997ea67edee2
