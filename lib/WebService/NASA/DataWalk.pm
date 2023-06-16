@@ -206,6 +206,8 @@ sub __recurse {
 
 1;
 
+__END__
+
 =head1 SYNOPSIS
 
  use WebService::NASA::DataWalk;    
