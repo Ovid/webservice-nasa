@@ -173,7 +173,9 @@ method _write_test_for_method( $method_name, $endpoint ) {
     # attacks. However, that causes the code to think the response is a string
     # and not JSON. I have not yet debugged why, so we are using Cpanel::JSON::XS
     # instead.
-    my $body = ref $response_example ? encode_json($response_example) : $response_example;
+    # We use ->canonical to ensure that the output is always the same.
+    state $json = Cpanel::JSON::XS->new->utf8->canonical;
+    my $body = ref $response_example ? $json->encode($response_example) : $response_example;
     $template->process(
         $self->_load_template('test_file.tt'),
         {
