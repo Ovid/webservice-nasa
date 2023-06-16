@@ -165,6 +165,11 @@ Arguments:
 
     Optional.
 
+# SEE ALSO
+
+The unofficial NASA OpenAPI specification can be found at
+[https://github.com/Ovid/nasa-openapi](https://github.com/Ovid/nasa-openapi).
+
 ## `get_neo_rest_v1_neo_asteroidid`
 
 ```perl
@@ -184,6 +189,11 @@ Arguments:
     Asteroid SPK-ID correlates to the NASA JPL small body
 
     Required.
+
+# SEE ALSO
+
+The unofficial NASA OpenAPI specification can be found at
+[https://github.com/Ovid/nasa-openapi](https://github.com/Ovid/nasa-openapi).
 
 ## `get_neo_rest_v1_neo_browse`
 
@@ -211,6 +221,11 @@ Arguments:
     Number of elements per page
 
     Optional.
+
+# SEE ALSO
+
+The unofficial NASA OpenAPI specification can be found at
+[https://github.com/Ovid/nasa-openapi](https://github.com/Ovid/nasa-openapi).
 
 ## `get_planetary_apod`
 
@@ -261,6 +276,11 @@ Arguments:
 
     Optional.
 
+# SEE ALSO
+
+The unofficial NASA OpenAPI specification can be found at
+[https://github.com/Ovid/nasa-openapi](https://github.com/Ovid/nasa-openapi).
+
 ## `get_planetary_earth_assets`
 
 ```perl
@@ -305,6 +325,11 @@ Arguments:
     Longitude
 
     Required.
+
+# SEE ALSO
+
+The unofficial NASA OpenAPI specification can be found at
+[https://github.com/Ovid/nasa-openapi](https://github.com/Ovid/nasa-openapi).
 
 ## `get_planetary_earth_imagery`
 
@@ -368,7 +393,12 @@ Arguments:
 
     Required.
 
-\#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: b60b34c7cadff7c6b81aed0fb1438edb
+# SEE ALSO
+
+The unofficial NASA OpenAPI specification can be found at
+[https://github.com/Ovid/nasa-openapi](https://github.com/Ovid/nasa-openapi).
+
+\#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 497283710fc1c4aa8b01e317e7926a9f
 
 # AUTHOR
 
