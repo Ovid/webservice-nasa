@@ -18,7 +18,8 @@ use File::Slurp qw(read_file);
 use JSONSchema::Validator;
 use Path::Tiny 'path';
 use Perl::Tidy;
-use String::Util qw(trim);
+use String::CamelSnakeKebab qw(lower_snake_case);
+use String::Util            qw(trim);
 use Template;
 use YAML::XS qw(Load);
 use autodie  qw(:all);
@@ -306,5 +307,6 @@ method _make_method_name($string) {
     $string =~ tr/-/_/;
     $string =~ tr/\//_/;
     $string =~ s/__*/_/g;
+    $string = lower_snake_case($string);
     return "get$string";
 }

@@ -3,7 +3,7 @@ package WebService::NASA;
 our $VERSION   = '0.1';
 our $AUTHORITY = 'cpan:OVID';
 
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: a8f0191d4cf253a510e2509a1e2ca54a
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: a94d278e6fafb4e5f1cd38a383e06c74
 
 # ABSTRACT: Perl interface to NASA's public APIs
 
@@ -275,7 +275,7 @@ method get_neo_rest_v1_feed($query) {
     );
 }
 
-signature_for get_neo_rest_v1_neo_asteroidid_ => (
+signature_for get_neo_rest_v1_neo_asteroidid => (
     method => 1,
     named  => [
         asteroidId => NonEmptyStr,
@@ -283,7 +283,7 @@ signature_for get_neo_rest_v1_neo_asteroidid_ => (
     ],
 );
 
-method get_neo_rest_v1_neo_asteroidid_($query) {
+method get_neo_rest_v1_neo_asteroidid($query) {
     return $self->_get_response(
         route => '/neo/rest/v1/neo/{asteroidId}/',
         query => {
@@ -450,9 +450,9 @@ Optional.
 
 
 
-=head2 C<get_neo_rest_v1_neo_asteroidid_>
+=head2 C<get_neo_rest_v1_neo_asteroidid>
 
-    my $result = $nasa->get_neo_rest_v1_neo_asteroidid_(
+    my $result = $nasa->get_neo_rest_v1_neo_asteroidid(
         asteroidId => $asteroidId,
     );
 
@@ -679,4 +679,4 @@ Required.
 
 =back
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: a8f0191d4cf253a510e2509a1e2ca54a
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: a94d278e6fafb4e5f1cd38a383e06c74
