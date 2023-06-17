@@ -2,9 +2,6 @@ package WebService::NASA::Generate;
 
 # ABSTRACT: Generate WebService::NASA modules from OpenAPI
 
-our $VERSION   = '0.1';
-our $AUTHORITY = 'cpan:OVID';
-
 use v5.20.0;
 use warnings;
 use Carp                qw(croak);
@@ -32,6 +29,9 @@ use WebService::NASA::Moose types => [
       NonEmptyStr
     )
 ];
+
+our $VERSION   = '0.1';
+our $AUTHORITY = 'cpan:OVID';
 
 param openapi                       => ( isa => NonEmptyStr );
 param [qw/debug overwrite verbose/] => ( isa => Bool, default => 0 );
@@ -110,6 +110,7 @@ method _write_perl( $output, $filename ) {
             }
             open my $fh, '>', $filename;
             print {$fh} $self->_protected_code( $original, $output );
+            close $fh;
         }
     }
 }
@@ -228,6 +229,7 @@ method _write_schema_documentation( $raw_yaml, $hashref ) {
         }
         open my $fh, '>', $filename;
         print {$fh} $output;
+        close $fh;
     }
 }
 
@@ -258,6 +260,7 @@ method _assert_valid_schema() {
 method _get_openapi() {
     open my $fh, '<', $self->openapi;
     my $raw_yaml = do { local $/; <$fh> };
+    close $fh;
     my $openapi  = Load($raw_yaml);
     my $resolved = Load($raw_yaml);
 
@@ -267,7 +270,7 @@ method _get_openapi() {
         unless ( 'HASH' eq $WebService::NASA::DataWalk::type ) {
             croak "Expected HASH, got " . ref $WebService::NASA::DataWalk::type;
         }
-        no warnings 'once';
+        no warnings 'once';    ## no critic (ProhibitNoWarnings)
         my $container = $WebService::NASA::DataWalk::container;
         my $ref       = delete $container->{'$ref'};
         my ( undef, undef, $type, $name ) = split '/', $ref;
@@ -307,6 +310,7 @@ method _load_template($filename) {
     my $path = path("templates/$filename")->absolute;
     open my $fh, '<', $path;
     my $contents = do { local $/; <$fh> };
+    close $fh;
     return \$contents
 }
 

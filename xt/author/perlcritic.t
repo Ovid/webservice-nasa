@@ -15,5 +15,8 @@ eval { require Test::Perl::Critic; 1 } or do {
 };
 
 my $rcfile = File::Spec->catfile( 'xt', 'perlcriticrc' );
-Test::Perl::Critic->import( -profile => $rcfile );
+Test::Perl::Critic->import(
+    -verbose => '%f: %m at %l %p',
+    -profile => $rcfile,
+);
 all_critic_ok();

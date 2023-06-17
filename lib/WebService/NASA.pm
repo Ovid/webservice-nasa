@@ -1,7 +1,7 @@
 package WebService::NASA;
 
-our $VERSION   = '0.1';
-our $AUTHORITY = 'cpan:OVID';
+our $VERSION   = '0.1';          ## no critic (RequireUseStrict RequireUseWarnings)
+our $AUTHORITY = 'cpan:OVID';    ## no critic (RequireUseStrict RequireUseWarnings)
 
 #<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 497283710fc1c4aa8b01e317e7926a9f
 
