@@ -4,7 +4,7 @@ package WebService::NASA::Moose;
 
 use MooseX::Extended::Custom;
 use PerlX::Maybe 'provided';
-our $VERSION   = '0.1';
+our $VERSION   = '0.1';          ## no critic (RequireUseStrict RequireUseWarnings)
 our $AUTHORITY = 'cpan:OVID';    ## no critic (RequireUseStrict RequireUseWarnings)
 
 # If $^P is true, we're running under the debugger.
