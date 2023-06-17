@@ -324,3 +324,60 @@ method _make_method_name($string) {
     $string = lower_snake_case($string);
     return "get$string";
 }
+
+__END__
+
+=head1 SYNOPSIS
+
+    my $generator = WebService::NASA::Generate->new(
+        openapi   => $openapi,
+        debug     => $debug,
+        write     => $write,
+        overwrite => $overwrite,
+        verbose   => $verbose,
+    );
+    $generator->run;
+
+=head1 DESCRIPTION
+
+This module automatically generates the WebService::NASA modules from
+OpenAPI documents in the `nasa/` directory. Update those documents and
+rerun this code.
+
+=head1 CONSTRUCTOR
+
+There are several parameters that can be passed to the constructor. Only the
+C<openapi> parameter is required.
+
+=over 4
+
+=item C<openapi>
+
+The path to the OpenAPI document to use as the source of truth.
+
+=item C<debug>
+
+If true, the generated code will be printed to STDOUT instead of being written
+to disk.
+
+Defaults to false.
+
+=item C<write>
+
+If true, the generated code will be written to disk. If false, the code will be not be
+written to disk.
+
+Defaults to true.
+
+=item C<overwrite>
+
+Some files are generated from templates. If the file already exists and the file
+checksum does not match, this code will die, telling you that. You can pass a true
+value to C<overwrite> to force the file to be overwritten.
+
+Default false.
+
+=item C<verbose>
+
+Similar to C<debug> (but not exactly), this will print out additional
+information of what the code is doing, but I<not> the source code itself.
