@@ -26,3 +26,5 @@
 # Unknown:
 
 * 404s. Maybe different server. Satellite Situation Center: System to cast geocentric spacecraft location information into a framework of (empirical) geophysical regions
+
+Looks like the correct domain is `sscweb.gsfc.nasa.gov`, not the `sscweb.sci.gsfc.nasa.gov` domain they list.
