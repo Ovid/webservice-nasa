@@ -1268,13 +1268,13 @@ subtest 'Validate Response via OpenAPI' => sub {
             ],
         },
     };
-    if ( $nasa->is_json ) {
-        eq_or_diff $response, $expected, 'get_neo_rest_v1_feed response is decoded correctly' if $nasa->is_json;
+    if ( $response->is_json ) {
+        eq_or_diff $response->content, $expected, 'get_neo_rest_v1_feed response is decoded correctly';
     }
     else {
-        ok defined $response, 'get_neo_rest_v1_feed response is defined';
+        ok defined $response->content, 'get_neo_rest_v1_feed response is defined';
     }
-    is $nasa->requests_remaining, $limit_remaining, 'requests_remaining matches headers';
+    is $response->requests_remaining, $limit_remaining, 'requests_remaining matches headers';
 };
 
 sub default {

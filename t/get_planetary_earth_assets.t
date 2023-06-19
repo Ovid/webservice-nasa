@@ -42,13 +42,13 @@ subtest 'Validate Response via OpenAPI' => sub {
         url             =>
           'https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/ea0061d06542c151df676804213b0e32-e13a44f7bfe19cc2a7f5c23a20921213:getPixels',
     };
-    if ( $nasa->is_json ) {
-        eq_or_diff $response, $expected, 'get_planetary_earth_assets response is decoded correctly' if $nasa->is_json;
+    if ( $response->is_json ) {
+        eq_or_diff $response->content, $expected, 'get_neo_rest_v1_feed response is decoded correctly';
     }
     else {
-        ok defined $response, 'get_planetary_earth_assets response is defined';
+        ok defined $response->content, 'get_neo_rest_v1_feed response is defined';
     }
-    is $nasa->requests_remaining, $limit_remaining, 'requests_remaining matches headers';
+    is $response->requests_remaining, $limit_remaining, 'requests_remaining matches headers';
 };
 
 sub default {

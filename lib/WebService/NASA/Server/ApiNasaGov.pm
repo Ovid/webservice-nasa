@@ -1,4 +1,4 @@
-package WebService::NASA;
+package WebService::NASA::Server::ApiNasaGov;
 
 our $VERSION   = '0.1';          ## no critic (RequireUseStrict RequireUseWarnings)
 our $AUTHORITY = 'cpan:OVID';    ## no critic (RequireUseStrict RequireUseWarnings)
@@ -12,100 +12,165 @@ our $AUTHORITY = 'cpan:OVID';    ## no critic (RequireUseStrict RequireUseWarnin
 use v5.20.0;
 use WebService::NASA::Moose types => [
     qw(
-      Bool
-      Dict
-      HashRef
-      InstanceOf
       NonEmptyStr
       Optional
-      PositiveInt
-      PositiveOrZeroInt
-      Undef
     )
 ];
+with qw(WebService::NASA::Role::Server);
 
-use JSONSchema::Validator;
 use PerlX::Maybe   qw(maybe);
-use Sys::SigAction qw(timeout_call);
-use Mojo::UserAgent;
-use Mojo::URL;
-use Cpanel::JSON::XS;
 use Type::Params -sigs;
-use File::Spec::Functions 'catfile';
-use Path::Tiny;
-use File::ShareDir 'dist_dir';
-
-param [qw/debug testing strict/] => (
-    isa     => Bool,
-    default => 0,
-);
-
-param [qw/validate_request validate_response/] => (
-    isa     => Bool,
-    default => 1,
-);
-
-param timeout => (
-    isa     => PositiveInt,
-    default => 30,
-);
-
-param _api_key => (
-    isa      => NonEmptyStr,
-    lazy     => 1,
-    init_arg => 'api_key',
-    default  => method() { $ENV{NASA_API_KEY} // 'DEMO_KEY' },
-);
-
-field _constructor_args => (
-    isa    => HashRef,
-    writer => '_set_constructor_args',
-);
-
-method BUILD ($args) {
-    $self->_set_constructor_args($args);
-}
 
 # Begin generated code here
 
-field api_nasa_gov_server => (
-    isa     => InstanceOf ['WebService::NASA::Server::ApiNasaGov'],
-    default => method () {
-        require WebService::NASA::Server::ApiNasaGov;
-        WebService::NASA::Server::ApiNasaGov->new( $self->_constructor_args )
-    },
-);
-use Method::Delegation qw(delegate);
-delegate(
-    methods => [
-        'get_planetary_earth_assets',
-        'get_planetary_earth_imagery',
-        'get_neo_rest_v1_feed',
-        'get_neo_rest_v1_neo_asteroidid',
-        'get_neo_rest_v1_neo_browse',
-        'get_planetary_apod',
+signature_for get_neo_rest_v1_feed => (
+    method => 1,
+    named  => [
+        end_date   => Optional [NonEmptyStr],
+        start_date => Optional [NonEmptyStr],
+        api_key    => Optional [NonEmptyStr],
     ],
-    to   => 'api_nasa_gov_server',
-    args => 1,
 );
+
+method get_neo_rest_v1_feed($query) {
+    return $self->_get_response(
+        route => '/neo/rest/v1/feed',
+        query => {
+            maybe end_date   => $query->{end_date},
+            maybe start_date => $query->{start_date},
+            maybe api_key    => $query->{api_key},
+        }
+    );
+}
+
+signature_for get_neo_rest_v1_neo_asteroidid => (
+    method => 1,
+    named  => [
+        asteroidId => NonEmptyStr,
+        api_key    => Optional [NonEmptyStr],
+    ],
+);
+
+method get_neo_rest_v1_neo_asteroidid($query) {
+    return $self->_get_response(
+        route => '/neo/rest/v1/neo/{asteroidId}/',
+        query => {
+            asteroidId    => $query->{asteroidId},
+            maybe api_key => $query->{api_key},
+        }
+    );
+}
+
+signature_for get_neo_rest_v1_neo_browse => (
+    method => 1,
+    named  => [
+        page    => Optional [NonEmptyStr],
+        size    => Optional [NonEmptyStr],
+        api_key => Optional [NonEmptyStr],
+    ],
+);
+
+method get_neo_rest_v1_neo_browse($query) {
+    return $self->_get_response(
+        route => '/neo/rest/v1/neo/browse',
+        query => {
+            maybe page    => $query->{page},
+            maybe size    => $query->{size},
+            maybe api_key => $query->{api_key},
+        }
+    );
+}
+
+signature_for get_planetary_apod => (
+    method => 1,
+    named  => [
+        count      => Optional [NonEmptyStr],
+        date       => Optional [NonEmptyStr],
+        end_date   => Optional [NonEmptyStr],
+        start_date => Optional [NonEmptyStr],
+        thumbs     => Optional [NonEmptyStr],
+        api_key    => Optional [NonEmptyStr],
+    ],
+);
+
+method get_planetary_apod($query) {
+    return $self->_get_response(
+        route => '/planetary/apod',
+        query => {
+            maybe count      => $query->{count},
+            maybe date       => $query->{date},
+            maybe end_date   => $query->{end_date},
+            maybe start_date => $query->{start_date},
+            maybe thumbs     => $query->{thumbs},
+            maybe api_key    => $query->{api_key},
+        }
+    );
+}
+
+signature_for get_planetary_earth_assets => (
+    method => 1,
+    named  => [
+        date    => NonEmptyStr,
+        dim     => Optional [NonEmptyStr],
+        lat     => NonEmptyStr,
+        lon     => NonEmptyStr,
+        api_key => Optional [NonEmptyStr],
+    ],
+);
+
+method get_planetary_earth_assets($query) {
+    return $self->_get_response(
+        route => '/planetary/earth/assets',
+        query => {
+            date          => $query->{date},
+            maybe dim     => $query->{dim},
+            lat           => $query->{lat},
+            lon           => $query->{lon},
+            maybe api_key => $query->{api_key},
+        }
+    );
+}
+
+signature_for get_planetary_earth_imagery => (
+    method => 1,
+    named  => [
+        cloud_score => Optional [NonEmptyStr],
+        date        => NonEmptyStr,
+        dim         => Optional [NonEmptyStr],
+        lat         => NonEmptyStr,
+        lon         => NonEmptyStr,
+        api_key     => Optional [NonEmptyStr],
+    ],
+);
+
+method get_planetary_earth_imagery($query) {
+    return $self->_get_response(
+        route => '/planetary/earth/imagery',
+        query => {
+            maybe cloud_score => $query->{cloud_score},
+            date              => $query->{date},
+            maybe dim         => $query->{dim},
+            lat               => $query->{lat},
+            lon               => $query->{lon},
+            maybe api_key     => $query->{api_key},
+        }
+    );
+}
 
 __END__
 
 =head1 SYNOPSIS
 
-    use WebService::NASA;
+    use WebService::NASA::Server::ApiNasaGov;
 
-    my $api = WebService::NASA->new(
+    my $api = WebService::NASA::Server::ApiNasaGov->new(
         api_key => 'your_api_key',
     );
 
 =head1 DESCRIPTION
 
-This project is a Perl client for the NASA API. It is generated from a
-full OpenAPI 3.0.0 specification, which can be found at F<nasa/openapi.yaml>.
-
-By default both the request and response are validated against the OpenAPI
-specification.
+Gives acess to the endpoints at L<https://api.nasa.gov>. You probably want
+C<WebService::NASA> instead, as it's the front-end for this module.
 
 Please see L<https://api.nasa.gov> for more information. You can sign up for
 a free API key there.

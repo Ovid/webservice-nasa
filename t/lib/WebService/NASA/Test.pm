@@ -9,11 +9,23 @@ use WebService::NASA;
 use parent 'Exporter';
 our @EXPORT_OK = qw( set_response );
 
-sub WebService::NASA::_GET ( $self, $url ) {
-    my $res           = Mojo::Message::Response->new;
-    my $next_response = _get_response();
-    $res->parse($next_response);
-    return $res;
+BEGIN {
+    my @servers = qw(
+      ApiNasaGov
+    );
+
+    foreach my $server (@servers) {
+        eval "use WebService::NASA::Server::${server}";
+        confess $@ if $@;
+        my $method = "WebService::NASA::Server::${server}::_GET";
+        no strict 'refs';
+        *$method = sub ( $self, $url ) {
+            my $res           = Mojo::Message::Response->new;
+            my $next_response = _get_response();
+            $res->parse($next_response);
+            return $res;
+        };
+    }
 }
 
 my $RESPONSE;

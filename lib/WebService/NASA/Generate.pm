@@ -15,7 +15,10 @@ use File::Slurp qw(read_file);
 use JSONSchema::Validator;
 use Path::Tiny 'path';
 use Perl::Tidy;
-use String::CamelSnakeKebab qw(lower_snake_case);
+use String::CamelSnakeKebab qw(
+  lower_snake_case
+  upper_camel_case
+);
 use String::Util            qw(trim);
 use Template;
 use YAML::XS qw(Load);
