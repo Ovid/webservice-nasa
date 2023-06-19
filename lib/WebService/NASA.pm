@@ -23,39 +23,11 @@ use WebService::NASA::Moose types => [
       Undef
     )
 ];
+with qw(
+  WebService::NASA::Role::DelegatedParams
+);
 
-use JSONSchema::Validator;
-use PerlX::Maybe   qw(maybe);
-use Sys::SigAction qw(timeout_call);
-use Mojo::UserAgent;
-use Mojo::URL;
-use Cpanel::JSON::XS;
 use Type::Params -sigs;
-use File::Spec::Functions 'catfile';
-use Path::Tiny;
-use File::ShareDir 'dist_dir';
-
-param [qw/debug testing strict/] => (
-    isa     => Bool,
-    default => 0,
-);
-
-param [qw/validate_request validate_response/] => (
-    isa     => Bool,
-    default => 1,
-);
-
-param timeout => (
-    isa     => PositiveInt,
-    default => 30,
-);
-
-param _api_key => (
-    isa      => NonEmptyStr,
-    lazy     => 1,
-    init_arg => 'api_key',
-    default  => method() { $ENV{NASA_API_KEY} // 'DEMO_KEY' },
-);
 
 field _constructor_args => (
     isa    => HashRef,
