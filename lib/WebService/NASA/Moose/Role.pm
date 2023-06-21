@@ -3,7 +3,6 @@ package WebService::NASA::Moose::Role;
 # ABSTRACT: MooseX::Extended:Role for WebService::NASA
 
 use MooseX::Extended::Role::Custom;
-use PerlX::Maybe 'provided';
 our $VERSION   = '0.1';          ## no critic (RequireUseStrict RequireUseWarnings)
 our $AUTHORITY = 'cpan:OVID';    ## no critic (RequireUseStrict RequireUseWarnings)
 
@@ -16,8 +15,6 @@ our $AUTHORITY = 'cpan:OVID';    ## no critic (RequireUseStrict RequireUseWarnin
 sub import ( $class, %args ) {
     MooseX::Extended::Role::Custom->create(
         includes => ['method'],
-        provided $^P,
-        excludes => 'immutable',
         %args    # you need this to allow customization of your customization
     );
 }
