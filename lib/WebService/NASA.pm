@@ -7,8 +7,6 @@ our $AUTHORITY = 'cpan:OVID';    ## no critic (RequireUseStrict RequireUseWarnin
 
 # ABSTRACT: Perl interface to NASA's public APIs
 
-# see also https://api.nasa.gov/
-# Don't forget timeouts
 use v5.20.0;
 use WebService::NASA::Moose types => [
     qw(
@@ -23,6 +21,7 @@ use WebService::NASA::Moose types => [
       Undef
     )
 ];
+use Method::Delegation qw(delegate);
 with qw(
   WebService::NASA::Role::DelegatedParams
 );
@@ -47,7 +46,6 @@ field api_nasa_gov_server => (
         WebService::NASA::Server::ApiNasaGov->new( $self->_constructor_args )
     },
 );
-use Method::Delegation qw(delegate);
 delegate(
     methods => [
         'get_planetary_earth_assets',
