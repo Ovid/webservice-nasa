@@ -7,19 +7,23 @@ use lib 'lib';
 use WebService::NASA::Generate;
 
 GetOptions(
-    'openapi=s' => \( my $openapi   = 'nasa/openapi.yaml' ),
-    'debug'     => \( my $debug     = 0 ),
+    'openapi=s' => \my $openapi,
+    'dir'       => \my $dir,
+    'debug=i'   => \( my $debug     = 0 ),
     'overwrite' => \( my $overwrite = 0 ),
-    'verbose'   => \( my $verbose   = 0 ),
     'write!'    => \( my $write     = 1 ),
 ) or die "bad options";
 
+if ( !defined $dir && !defined $openapi ) {
+    $dir = 'nasa';
+}
+
 my $generator = WebService::NASA::Generate->new(
     openapi   => $openapi,
+    dir       => $dir,
     debug     => $debug,
     write     => $write,
     overwrite => $overwrite,
-    verbose   => $verbose,
 );
 $generator->run;
 
@@ -37,10 +41,9 @@ regenerate_code.pl - Regenerate the WebService::NASA code
 
 	Option      Argument	Description
 	------      --------	-----------
-	--openapi   Filename    Path to the OpenAPI file to use (defaults to nasa/openapi.yaml)
-	--debug     -           Enable debugging output
+	--openapi   Filename    Path to the OpenAPI file to use
+	--debug     [0,1,2]     Enable debugging output
 	--overwrite -           Overwrite existing files if 
-	--verbose   -           Enable verbose output
 	--nowrite   -           Don't write the files
 
 =head1 DESCRIPTION

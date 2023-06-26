@@ -7,11 +7,12 @@ use warnings;
 use Carp                qw(croak);
 use Cpanel::JSON::XS    qw(encode_json);
 use CodeGen::Protection qw(
-  create_protected_code
   rewrite_code
 );
 use Data::Dumper;
+use File::Find::Rule;
 use File::Slurp qw(read_file);
+use File::Spec::Functions qw(catfile);
 use JSONSchema::Validator;
 use Path::Tiny 'path';
 use Perl::Tidy;
@@ -19,8 +20,9 @@ use String::CamelSnakeKebab qw(
   lower_snake_case
   upper_camel_case
 );
-use String::Util            qw(trim);
+use String::Util qw(trim);
 use Template;
+use URI;
 use YAML::XS qw(Load);
 use autodie  qw(:all);
 
@@ -28,7 +30,10 @@ use WebService::NASA::DataWalk qw(walk);
 use WebService::NASA::Moose types => [
     qw(
       Bool
+      Enum
+      HashRef
       InstanceOf
+      Maybe
       NonEmptyStr
     )
 ];
@@ -36,31 +41,78 @@ use WebService::NASA::Moose types => [
 our $VERSION   = '0.1';
 our $AUTHORITY = 'cpan:OVID';
 
-param openapi                       => ( isa => NonEmptyStr );
-param [qw/debug overwrite verbose/] => ( isa => Bool, default => 0 );
-param write                         => ( isa => Bool, default => 1 );
+param openapi   => ( isa => Maybe [NonEmptyStr], required => 0 );
+param dir       => ( isa => Maybe [NonEmptyStr], required => 0 );
+param overwrite => ( isa => Bool, default => 0 );
+param debug     => ( isa => Enum [ 0, 1, 2 ], default => 0 );
+param write     => ( isa => Bool, default => 1 );
 
 field _template => (
     isa     => InstanceOf ['Template'],
     default => method() { Template->new },
 );
+field _current_openapi => (
+    isa     => Maybe [HashRef],
+    writer  => '_set_current_openapi',
+);
+field _current_server_name => (
+    isa     => Maybe [NonEmptyStr],
+    writer  => '_set_current_server_name',
+);
+field _current_server_url => (
+    isa     => Maybe [NonEmptyStr],
+    writer  => '_set_current_server_url',
+);
 
-method run() {
-
-    # we must call this first or else we might write out invalid files
-    $self->_assert_valid_schema();
-    my ( $raw_yaml, $openapi, $resolved ) = $self->_get_openapi;
-
-    $self->_write_schema_documentation( $raw_yaml, $openapi );
-    $self->_write_webservice_nasa_module($resolved);
+method BUILD($args) {
+    if ( $self->dir && $self->openapi ) {
+        croak("Cannot specify both 'dir' and 'openapi'");
+    }
 }
 
-method _write_webservice_nasa_module($openapi) {
-    my @paths = sort keys $openapi->{paths}->%*;
+method run() {
+    my @servers;
+    foreach my $filename ( $self->_get_openapi_filenames ) {
+        my ( $raw_yaml, $openapi, $resolved ) = $self->_get_openapi($filename);
+
+        $self->_set_current_openapi($openapi);
+        $self->_set_current_server;
+
+        $self->_write_schema_documentation($raw_yaml);
+        push @servers => $self->_write_webservice_nasa_server_module($resolved);
+    }
+}
+
+method _set_current_server() {
+    my $schema = $self->_current_openapi;
+    my $server = $schema->{servers}[0]{url}
+      or croak("No server for $schema");
+    my $host  = URI->new($server)->host; 
+    $host =~ s/\./_/g;
+    $self->_set_current_server_name( upper_camel_case($host) );
+    $self->_set_current_server_url($server);
+}
+
+method _get_openapi_filenames() {
+    return $self->openapi if $self->openapi;
+    my @files = File::Find::Rule->file->name( '*.yaml', '*.yml' )->in( $self->dir );
+    if ( !@files ) {
+        croak( "No YAML files found in " . $self->dir );
+    }
+    return @files;
+}
+
+method _write_webservice_nasa_server_module($resolved) {
+    my $openapi = $self->_current_openapi;
+    my @paths   = sort keys $openapi->{paths}->%*;
 
     my %endpoints;
     foreach my $path (@paths) {
         my $method_name = $self->_make_method_name($path);
+        if ( $self->debug ) {
+            say "Gathering data for method: $method_name";
+        }
+
         if ( my $previous_path = $endpoints{$method_name} ) {
             croak("Duplicate method name '$method_name' generated from $path and $previous_path->{path}");
         }
@@ -71,10 +123,14 @@ method _write_webservice_nasa_module($openapi) {
             parameters => {},
             full       => $route,
         };
-        foreach my $parameters ( $route->{parameters}->@* ) {
+        PARAMETER: foreach my $parameters ( $route->{parameters}->@* ) {
             $parameters->{route} = $path;
-            my $name = $parameters->{name} or croak("No name for $path");
-            next if $name eq 'api_key';
+            my $name = $parameters->{name} or do {
+                say STDERR $self->_perl_to_string($parameters);
+                croak("No name for $path");
+            };
+            say STDERR $self->_perl_to_string($parameters) if $self->debug;
+            next PARAMETER if $name eq 'api_key';
             if ( exists( $endpoints{$method_name}{parameters}{$name} ) ) {
                 croak("Duplicate parameters name '$name' for $path");
             }
@@ -82,12 +138,31 @@ method _write_webservice_nasa_module($openapi) {
         }
         $self->_write_test_for_method( $method_name, $endpoints{$method_name} );
     }
-
-    # Print the template results to STDOUT
     my $template = $self->_template;
     $template->process(
         $self->_load_template('webservice_nasa.tt'),
         { endpoints => \%endpoints },
+        \my $output
+    ) or die $template->error;
+    $output = $self->_tidy_code($output);
+
+    my $server_name = $self->_current_server_name;
+    my $filename = catfile( qw/lib WebService NASA Server/, "$server_name.pm" );
+    $self->_write_perl( $output, $filename );
+
+    my $server_method = lower_snake_case($server_name) . '_server';
+    return {
+        name      => $server_name,
+        method    => $server_method,
+        endpoints => \%endpoints,
+    };
+}
+
+method _write_webservice_nasa_module(@servers) {
+    my $template = $self->_template;
+    $template->process(
+        $self->_load_template('webservice_nasa.tt'),
+        { servers => \@servers },
         \my $output
     ) or die $template->error;
     $output = $self->_tidy_code($output);
@@ -97,30 +172,21 @@ method _write_webservice_nasa_module($openapi) {
 }
 
 method _write_perl( $output, $filename ) {
+    my $original = -e $filename ? read_file($filename) : $output;
     if ( $self->debug ) {
-        say '-' x 80;
-        say "Writing $filename";
-        say $output;
+        say $original ? "Writing new file $filename." : "Updating $filename";
+        say $output if $self->debug > 1;
     }
-    else {
-        my $original = -e $filename ? read_file($filename) : $output;
-        if ( $self->verbose && !$original ) {
-            say "New file $filename.";
-        }
-        if ( $self->write ) {
-            if ( $self->verbose ) {
-                say "Writing $filename";
-            }
-            open my $fh, '>', $filename;
-            print {$fh} $self->_protected_code( $original, $output );
-            close $fh;
-        }
-    }
+    return if !$self->write;
+    open my $fh, '>', $filename;
+    print {$fh} $self->_protected_code( $filename, $original, $output );
+    close $fh;
 }
 
-method _protected_code( $existing_code, $protected_code ) {
+method _protected_code( $filename, $existing_code, $protected_code ) {
     return rewrite_code(
         type           => 'Perl',
+        name           => $filename,
         existing_code  => $existing_code,
         protected_code => $protected_code,
         overwrite      => $self->overwrite,
@@ -195,8 +261,7 @@ method _write_test_for_method( $method_name, $endpoint ) {
         # OK, this test doesn't exist. So we need to use the test_file_new.tt
         # template to insert the test code *between* the codegen markers. This
         # allows us to insert the test code in the correct place.
-        my $template_name = 'test_file_new.tt';
-        my $new_test      = $output;
+        my $new_test = $output;
         $output = '';
         $template->process(
             $self->_load_template('test_file_new.tt'),
@@ -209,31 +274,33 @@ method _write_test_for_method( $method_name, $endpoint ) {
     $self->_write_perl( $output, $filename );
 }
 
-method _write_schema_documentation( $raw_yaml, $hashref ) {
+method _write_schema_documentation($raw_yaml) {
     $raw_yaml =~ s/^/    /mg;    # indent
 
     # Print the template results to STDOUT
+    my $server_name = $self->_current_server_name;
     my $template = $self->_template;
     $template->process(
         $self->_load_template('webservice_nasa_schema.tt'),
-        { raw_yaml => $raw_yaml },
+        {
+            raw_yaml => $raw_yaml,
+            server_name   => $server_name,
+            server_url    => $self->_current_server_url,
+        },
         \my $output
     ) or die $template->error;
     $output = $self->_tidy_code($output);
 
-    my $filename = 'lib/WebService/NASA/Schema.pod';
+    my $filename = catfile( qw/lib WebService NASA Schema/, "$server_name.pod" );
     my $original = -e $filename ? read_file($filename) : '';
-    if ( $self->verbose && !$original ) {
-        say "New file $filename.";
+    if ( $self->debug ) {
+        say $original ? "Writing new file $filename." : "Updating $filename";
+        say $output if $self->debug > 1;
     }
-    if ( $self->write ) {
-        if ( $self->verbose ) {
-            say "Writing $filename";
-        }
-        open my $fh, '>', $filename;
-        print {$fh} $output;
-        close $fh;
-    }
+    return if !$self->write;
+    open my $fh, '>', $filename;
+    print {$fh} $output;
+    close $fh;
 }
 
 method _perl_to_string($perl) {
@@ -246,24 +313,15 @@ method _perl_to_string($perl) {
     return Dumper($perl);
 }
 
-method _assert_valid_schema() {
-    my $path = path( $self->openapi )->absolute;
-    eval {
-        JSONSchema::Validator->new( resource => "file://$path" );
-        1;
-    } or do {
+method _get_openapi($schema) {
 
-        # make sure we have a *valid* OpenAPI spec. If not, we want to die
-        # immediately rather than overwriting good files with bad data.
-        my $error = $@ // 'Zombie Error';
-        croak "Invalid OpenAPI file: $error";
-    };
-}
+    # we must call this first or else we might write out invalid files
+    $self->_assert_valid_schema($schema);
 
-method _get_openapi() {
-    open my $fh, '<', $self->openapi;
+    open my $fh, '<', $schema;
     my $raw_yaml = do { local $/; <$fh> };
     close $fh;
+    $DB::single = 1;
     my $openapi  = Load($raw_yaml);
     my $resolved = Load($raw_yaml);
 
@@ -275,6 +333,10 @@ method _get_openapi() {
         }
         no warnings 'once';    ## no critic (ProhibitNoWarnings)
         my $container = $WebService::NASA::DataWalk::container;
+        if ( $self->debug > 1 ) {
+            say STDERR "Resolving $container->{'$ref'}";
+            say STDERR $self->_perl_to_string($container);
+        }
         my $ref       = delete $container->{'$ref'};
         my ( undef, undef, $type, $name ) = split '/', $ref;
         my $reference = $openapi->{components}{$type}{$name} or croak "Could not resolve $ref";
@@ -288,6 +350,20 @@ method _get_openapi() {
       },
       $resolved;
     return ( $raw_yaml, $openapi, $resolved );
+}
+
+method _assert_valid_schema($filename) {
+    my $path = path($filename)->absolute;
+    eval {
+        JSONSchema::Validator->new( resource => "file://$path" );
+        1;
+    } or do {
+
+        # make sure we have a *valid* OpenAPI spec. If not, we want to die
+        # immediately rather than overwriting good files with bad data.
+        my $error = $@ // 'Zombie Error';
+        croak "Invalid OpenAPI file: $error";
+    };
 }
 
 method _tidy_code($code) {
@@ -337,7 +413,6 @@ __END__
         debug     => $debug,
         write     => $write,
         overwrite => $overwrite,
-        verbose   => $verbose,
     );
     $generator->run;
 
@@ -379,8 +454,3 @@ checksum does not match, this code will die, telling you that. You can pass a tr
 value to C<overwrite> to force the file to be overwritten.
 
 Default false.
-
-=item C<verbose>
-
-Similar to C<debug> (but not exactly), this will print out additional
-information of what the code is doing, but I<not> the source code itself.

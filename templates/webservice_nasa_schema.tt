@@ -1,9 +1,9 @@
 # ABSTRACT: JSON Schema for WebService::NASA
-# PODNAME: WebService::NASA::Schema
+# PODNAME: WebService::NASA::Schema::[% server_name %]
 
 =head1 DESCRIPTION
 
-The OpenAPI v3.0.0 specification for NASA's public APIs.
+The OpenAPI v3.0.0 specification for NASA's public APIs at L<[% server_url %]>.
 
 =head1 SCHEMA
 

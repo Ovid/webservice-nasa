@@ -1,0 +1,103 @@
+# ABSTRACT: Perl interface to NASA's public APIs
+
+use v5.20.0;
+use WebService::NASA::Moose types => [
+    qw(
+      NonEmptyStr
+      Optional
+    )
+];
+with qw(WebService::NASA::Role::Server);
+
+use PerlX::Maybe   qw(maybe);
+use Type::Params -sigs;
+
+# Begin generated code here
+
+[% FOR method IN endpoints.keys.sort;
+       definition = endpoints.$method;
+       params     = definition.parameters;
+%]
+signature_for [% method %] => (
+    method => 1,
+    named  => [
+        [%-FOREACH param IN params -%]
+        [% param.key %] => [% IF param.value.required %]NonEmptyStr[% ELSE %]Optional[NonEmptyStr][% END %],
+        [% END -%]
+        api_key => Optional[NonEmptyStr],
+    ],
+);
+
+method [% method %] ($query) {
+    return $self->_get_response( 
+        route  => '[% definition.endpoint %]',
+        query => {
+            [%- FOREACH param IN params -%]
+                [% IF !param.value.required %]maybe [% END %][% param.key %] => $query->{[% param.key %]},
+            [% END -%]
+            maybe api_key => $query->{api_key},
+        }
+    );
+}
+[% END %]
+
+__END__
+
+=head1 SYNOPSIS
+
+    use WebService::NASA::Server::[% server_class %]
+
+    my $api = WebService::NASA::Server::[% server_class %]->new(
+        api_key => 'your_api_key',
+    );
+
+=head1 DESCRIPTION
+
+Gives acess to the endpoints at L<[% server %]>. You probably want
+C<WebService::NASA> instead, as it's the front-end for this module.
+
+Please see L<https://api.nasa.gov> for more information. You can sign up for
+a free API key there.
+
+=head1 METHODS
+
+To understand what is returned, please see L<WebService::NASA::Schema>.
+
+[% FOR method IN endpoints.keys.sort;
+       definition = endpoints.$method;
+       params     = definition.parameters;
+%]
+
+=head2 C<[% method %]>
+
+    [%- USE PerlTidy; FILTER $PerlTidy %]
+    my $result = $nasa->[% method %](
+        [%- IF params -%]
+          [%- FOREACH param IN params -%]
+            [% param.key %] => $[% param.key %],
+          [% END -%]
+        [%- END -%]
+    );
+    [%- END -%]
+
+Method for C<[% definition.endpoint %]>.
+
+[% definition.full.description %]
+
+Arguments:
+
+=over 4
+[% FOREACH param IN params %]
+=item * C<[% param.key %]> 
+
+[% param.value.description %]
+
+[% IF param.value.required %]Required.[% ELSE %]Optional.[% END %]
+[% END %]
+
+=back
+
+=head1 SEE ALSO
+
+The unofficial NASA OpenAPI specification can be found at
+L<https://github.com/Ovid/nasa-openapi>.
