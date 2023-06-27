@@ -10,7 +10,7 @@ GetOptions(
     'openapi=s' => \my $openapi,
     'dir'       => \my $dir,
     'debug=i'   => \( my $debug     = 0 ),
-    'overwrite' => \( my $overwrite = 0 ),
+    'force'     => \( my $overwrite = 0 ),
     'write!'    => \( my $write     = 1 ),
 ) or die "bad options";
 
@@ -43,7 +43,7 @@ regenerate_code.pl - Regenerate the WebService::NASA code
 	------      --------	-----------
 	--openapi   Filename    Path to the OpenAPI file to use
 	--debug     [0,1,2]     Enable debugging output
-	--overwrite -           Overwrite existing files if 
+	--force     -           Overwrite existing files if checksums fail
 	--nowrite   -           Don't write the files
 
 =head1 DESCRIPTION
