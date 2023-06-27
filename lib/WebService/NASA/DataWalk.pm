@@ -2,7 +2,7 @@ package WebService::NASA::DataWalk;
 
 # ABSTRACT: Traverse Perl data structures deterministically
 
-# Forked fro Data::Walk 2.01
+# Forked from Data::Walk 2.01
 # Traverse Perl data structures.
 # Copyright (C) 2005-2016 Guido Flohr <guido.flohr@cantanea.com>,
 # all rights reserved.
@@ -31,11 +31,16 @@ our $AUTHORITY = 'cpan:OVID';
 # This code could use a lot of cleanup, but for now, it does what
 # we need. Because it's only used internally and we control what we need,
 # we can get away with this.
+
 use Scalar::Util;
 
-use parent 'Exporter';
+require Exporter;
 
-our @EXPORT_OK = qw (walk walkdepth);
+use vars qw ($VERSION @ISA @EXPORT);
+
+$VERSION = '2.01';
+@ISA     = qw (Exporter);
+@EXPORT  = qw (walk walkdepth);
 
 use vars qw ($container $type $seen $address $depth $index $key);
 
@@ -116,7 +121,7 @@ sub __recurse {
         my $blessed = Scalar::Util::blessed($item);
 
         # Avoid fancy overloading stuff.
-        bless $item, __PACKAGE__ if $blessed;
+        bless $item if $blessed;
         $address = Scalar::Util::refaddr($item);
 
         $seen = $options->{seen}->{$address}++;
@@ -140,7 +145,6 @@ sub __recurse {
                 @children = @{$item};
             }
             else {
-
                 # XXX This is the major change. We use sorted keys to ensure
                 # that we walk hashrefs in a deterministic order.
                 @children = map { $_ => $item->{$_} } sort keys %{$item};
