@@ -26,7 +26,7 @@ use URI;
 use YAML::XS qw(Load);
 use autodie  qw(:all);
 
-use WebService::NASA::DataWalk qw(walk);
+use WebService::NASA::DataWalk qw(resolve_references);
 use WebService::NASA::Moose types => [
     qw(
       Bool
@@ -104,7 +104,7 @@ method _get_openapi_filenames() {
 
 method _write_webservice_nasa_server_module($resolved) {
     my $openapi = $self->_current_openapi;
-    my @paths   = sort keys $openapi->{paths}->%*;
+    my @paths   = sort keys $resolved->{paths}->%*;
 
     my %endpoints;
     foreach my $path (@paths) {
@@ -117,7 +117,7 @@ method _write_webservice_nasa_server_module($resolved) {
             croak("Duplicate method name '$method_name' generated from $path and $previous_path->{path}");
         }
 
-        my $route = $openapi->{paths}{$path}{get};
+        my $route = $resolved->{paths}{$path}{get};
         $endpoints{$method_name} = {
             endpoint   => $path,
             parameters => {},
@@ -127,7 +127,7 @@ method _write_webservice_nasa_server_module($resolved) {
             $parameters->{route} = $path;
             my $name = $parameters->{name} or do {
                 say STDERR $self->_perl_to_string($parameters);
-                croak("No name for $path");
+                Carp::confess("No name for $path");
             };
             say STDERR $self->_perl_to_string($parameters) if $self->debug;
             next PARAMETER if $name eq 'api_key';
@@ -321,34 +321,10 @@ method _get_openapi($schema) {
     open my $fh, '<', $schema;
     my $raw_yaml = do { local $/; <$fh> };
     close $fh;
-    $DB::single = 1;
     my $openapi  = Load($raw_yaml);
     my $resolved = Load($raw_yaml);
 
-    # resolve all references
-    walk sub {
-        return unless '$ref' eq $_;
-        unless ( 'HASH' eq $WebService::NASA::DataWalk::type ) {
-            croak "Expected HASH, got " . ref $WebService::NASA::DataWalk::type;
-        }
-        no warnings 'once';    ## no critic (ProhibitNoWarnings)
-        my $container = $WebService::NASA::DataWalk::container;
-        if ( $self->debug > 1 ) {
-            say STDERR "Resolving $container->{'$ref'}";
-            say STDERR $self->_perl_to_string($container);
-        }
-        my $ref       = delete $container->{'$ref'};
-        my ( undef, undef, $type, $name ) = split '/', $ref;
-        my $reference = $openapi->{components}{$type}{$name} or croak "Could not resolve $ref";
-
-        # Replace all $ref entries with the corresponding component value
-        # strictly speaking, this is a spec violation. OpenAPI 3.0.0 says that
-        # a $ref replaces all siblings. They're allowed to be defined, but
-        # they're simply discarded (not helpful!). OpenAPI 3.0.1 allgedly has
-        # support for keeping siblings, but we're not there yet.
-        $container->%* = ( $reference->%*, $container->%* );
-      },
-      $resolved;
+    resolve_references $resolved;
     return ( $raw_yaml, $openapi, $resolved );
 }
 
