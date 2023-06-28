@@ -3,7 +3,7 @@ package WebService::NASA;
 our $VERSION   = '0.1';          ## no critic (RequireUseStrict RequireUseWarnings)
 our $AUTHORITY = 'cpan:OVID';    ## no critic (RequireUseStrict RequireUseWarnings)
 
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 497283710fc1c4aa8b01e317e7926a9f
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: d1c8f209e22e115b25f1afd1bec48b0f
 
 # ABSTRACT: Perl interface to NASA's public APIs
 
@@ -494,4 +494,4 @@ Required.
 The unofficial NASA OpenAPI specification can be found at
 L<https://github.com/Ovid/nasa-openapi>.
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 497283710fc1c4aa8b01e317e7926a9f
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: d1c8f209e22e115b25f1afd1bec48b0f
