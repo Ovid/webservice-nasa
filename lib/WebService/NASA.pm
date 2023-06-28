@@ -3,9 +3,11 @@ package WebService::NASA;
 our $VERSION   = '0.1';          ## no critic (RequireUseStrict RequireUseWarnings)
 our $AUTHORITY = 'cpan:OVID';    ## no critic (RequireUseStrict RequireUseWarnings)
 
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: d1c8f209e22e115b25f1afd1bec48b0f
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 6c606b924d10d14e8d2e4299e33a1ac1
 
 # ABSTRACT: Perl interface to NASA's public APIs
+
+# see also https://api.nasa.gov/
 
 use v5.20.0;
 use WebService::NASA::Moose types => [
@@ -21,19 +23,19 @@ use WebService::NASA::Moose types => [
       Undef
     )
 ];
-use Method::Delegation qw(delegate);
 with qw(
   WebService::NASA::Role::DelegatedParams
 );
 
 use Type::Params -sigs;
+use Method::Delegation qw(delegate);
 
 field _constructor_args => (
     isa    => HashRef,
     writer => '_set_constructor_args',
 );
 
-method BUILD ($args) {
+method BUILD($args) {
     $self->_set_constructor_args($args);
 }
 
@@ -41,19 +43,19 @@ method BUILD ($args) {
 
 field api_nasa_gov_server => (
     isa     => InstanceOf ['WebService::NASA::Server::ApiNasaGov'],
-    default => method () {
+    default => method() {
         require WebService::NASA::Server::ApiNasaGov;
         WebService::NASA::Server::ApiNasaGov->new( $self->_constructor_args )
     },
 );
 delegate(
     methods => [
-        'get_planetary_earth_assets',
-        'get_planetary_earth_imagery',
         'get_neo_rest_v1_feed',
         'get_neo_rest_v1_neo_asteroidid',
         'get_neo_rest_v1_neo_browse',
         'get_planetary_apod',
+        'get_planetary_earth_assets',
+        'get_planetary_earth_imagery',
     ],
     to   => 'api_nasa_gov_server',
     args => 1,
@@ -181,7 +183,7 @@ not have an API key available when constructed.
 
 =head1 API METHODS
 
-In addition to the arugments specified below for each method, all methods take
+In addition to the arguments specified below for each method, all methods take
 an I<optional> API key. If you do not provide one, the api key supplied in the
 contructor will be used. If you did not supply one to the contructor,
 C<DEMO_KEY> will be used. Note that the C<DEMO_KEY> is rate limited to 30
@@ -198,7 +200,13 @@ Because NASA has not provided a full OpenAPI specification, we cannot
 guarantee exactly what will be returned. We do our best to provide a
 specification, but we're very loose with it to avoid validation errors.
 
-To understand what is returned, please see L<WenService::NASA::Spec>.
+To understand what is returned, please see L<WebService::NASA::Schema>.
+
+
+
+=head1 Server C<https://api.nasa.gov>
+
+Methods are delegated to L<WebService::NASA::Server::ApiNasaGov>.
 
 
 
@@ -231,15 +239,6 @@ Start date of APOD images to retrieve
 Optional.
 
 
-=back
-
-=head1 SEE ALSO
-
-The unofficial NASA OpenAPI specification can be found at
-L<https://github.com/Ovid/nasa-openapi>.
-
-
-
 =head2 C<get_neo_rest_v1_neo_asteroidid>
 
     my $result = $nasa->get_neo_rest_v1_neo_asteroidid(
@@ -259,15 +258,6 @@ Arguments:
 Asteroid SPK-ID correlates to the NASA JPL small body
 
 Required.
-
-
-=back
-
-=head1 SEE ALSO
-
-The unofficial NASA OpenAPI specification can be found at
-L<https://github.com/Ovid/nasa-openapi>.
-
 
 
 =head2 C<get_neo_rest_v1_neo_browse>
@@ -296,15 +286,6 @@ Optional.
 Number of elements per page
 
 Optional.
-
-
-=back
-
-=head1 SEE ALSO
-
-The unofficial NASA OpenAPI specification can be found at
-L<https://github.com/Ovid/nasa-openapi>.
-
 
 
 =head2 C<get_planetary_apod>
@@ -358,15 +339,6 @@ Return the URL of video thumbnail. If an APOD is not a video, this parameter is 
 Optional.
 
 
-=back
-
-=head1 SEE ALSO
-
-The unofficial NASA OpenAPI specification can be found at
-L<https://github.com/Ovid/nasa-openapi>.
-
-
-
 =head2 C<get_planetary_earth_assets>
 
     my $result = $nasa->get_planetary_earth_assets(
@@ -412,15 +384,6 @@ Required.
 Longitude
 
 Required.
-
-
-=back
-
-=head1 SEE ALSO
-
-The unofficial NASA OpenAPI specification can be found at
-L<https://github.com/Ovid/nasa-openapi>.
-
 
 
 =head2 C<get_planetary_earth_imagery>
@@ -486,7 +449,6 @@ Longitude
 
 Required.
 
-
 =back
 
 =head1 SEE ALSO
@@ -494,4 +456,4 @@ Required.
 The unofficial NASA OpenAPI specification can be found at
 L<https://github.com/Ovid/nasa-openapi>.
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: d1c8f209e22e115b25f1afd1bec48b0f
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 6c606b924d10d14e8d2e4299e33a1ac1

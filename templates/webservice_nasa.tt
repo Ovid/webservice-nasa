@@ -36,22 +36,22 @@ method BUILD ($args) {
 
 [% FOREACH server IN servers %]
 field [% server.method %] => (
-    isa     => InstanceOf ['WebService::NASA::Server::[% server.name %]'],
+    isa     => InstanceOf ['WebService::NASA::Server::[% server.class %]'],
     default => method () {
-        require WebService::NASA::Server::[% server.name %];
-        WebService::NASA::Server::[% server.name %]->new( $self->_constructor_args )
+        require WebService::NASA::Server::[% server.class %];
+        WebService::NASA::Server::[% server.class %]->new( $self->_constructor_args )
     },
 );
 delegate(
     methods => [
-    [%- FOREACH request IN server.requests -%]
-        '[% request.name %]',
+    [%- FOREACH method IN server.endpoints.keys.sort -%]
+        '[% method %]',
     [% END -%]
     ],
     to   => '[% server.method %]',
     args => 1,
 );
-[% END %]
+[% END -%]
 
 __END__
 
@@ -175,7 +175,7 @@ not have an API key available when constructed.
 
 =head1 API METHODS
 
-In addition to the arugments specified below for each method, all methods take
+In addition to the arguments specified below for each method, all methods take
 an I<optional> API key. If you do not provide one, the api key supplied in the
 contructor will be used. If you did not supply one to the contructor,
 C<DEMO_KEY> will be used. Note that the C<DEMO_KEY> is rate limited to 30
@@ -194,8 +194,14 @@ specification, but we're very loose with it to avoid validation errors.
 
 To understand what is returned, please see L<WebService::NASA::Schema>.
 
-[% FOR method IN endpoints.keys.sort;
-       definition = endpoints.$method;
+[% FOREACH server IN servers %]
+
+=head1 Server C<[% server.url %]>
+
+Methods are delegated to L<WebService::NASA::Server::[% server.class %]>.
+
+[% FOR method IN server.endpoints.keys.sort;
+       definition = server.endpoints.$method;
        params     = definition.parameters;
 %]
 
@@ -224,7 +230,8 @@ Arguments:
 [% param.value.description %]
 
 [% IF param.value.required %]Required.[% ELSE %]Optional.[% END %]
-[% END %]
+[% END -%]
+[% END -%]
 
 =back
 

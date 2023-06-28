@@ -3,12 +3,10 @@ package WebService::NASA::Server::ApiNasaGov;
 our $VERSION   = '0.1';          ## no critic (RequireUseStrict RequireUseWarnings)
 our $AUTHORITY = 'cpan:OVID';    ## no critic (RequireUseStrict RequireUseWarnings)
 
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 497283710fc1c4aa8b01e317e7926a9f
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 29fc030df98ea825d5e1b4aae07b6399
 
 # ABSTRACT: Perl interface to NASA's public APIs
 
-# see also https://api.nasa.gov/
-# Don't forget timeouts
 use v5.20.0;
 use WebService::NASA::Moose types => [
     qw(
@@ -18,7 +16,7 @@ use WebService::NASA::Moose types => [
 ];
 with qw(WebService::NASA::Role::Server);
 
-use PerlX::Maybe   qw(maybe);
+use PerlX::Maybe qw(maybe);
 use Type::Params -sigs;
 
 # Begin generated code here
@@ -161,7 +159,7 @@ __END__
 
 =head1 SYNOPSIS
 
-    use WebService::NASA::Server::ApiNasaGov;
+    use WebService::NASA::Server::ApiNasaGov
 
     my $api = WebService::NASA::Server::ApiNasaGov->new(
         api_key => 'your_api_key',
@@ -175,125 +173,9 @@ C<WebService::NASA> instead, as it's the front-end for this module.
 Please see L<https://api.nasa.gov> for more information. You can sign up for
 a free API key there.
 
-=head1 CONSTRUCTOR
+=head1 METHODS
 
-The following arguments may be passed to the constructor.
-
-=over 4
-
-=item * C<api_key>
-
-Optional. If not passed, we consult C<$ENV{NASA_API_KEY}>. If that is not set,
-we use C<DEMO_KEY>. Note that the C<DEMO_KEY> has a more severe rate limit.
-
-=item * C<validate_request>
-
-Optional. Defaults to true. If set to false, requests will not be validated.
-
-=item * C<validate_response>
-
-Optional. Defaults to true. If set to false, responses will not be validated.
-
-=item * C<strict>
-
-Optional. Defaults to false. If set to true, validation errors will be fatal.
-
-=item * C<timeout>
-
-Optional. Defaults to 30 seconds. The number of seconds to wait for a
-response.
-
-=item * C<debug>
-
-Optional. Defaults to false. If set to true, request/response debug
-information will be printed to C<STDERR>.
-
-=back
-
-=head1 RATE LIMITING
-
-L<WebService::NASA> does not handle rate limiting because your needs may vary.
-Instead, we provide two methods to help you manage rate limiting,
-C<requests_remaining> and C<last_request_time>. You can use these to
-to manager your own rate limiting.
-
-=head2 Web Service Rate Limits
-
-Limits are placed on the number of API requests you may make using your API
-key. Rate limits may vary by service. If you have an API key, you have an
-I<official> hourly limit of 1,000 requests per hour. There is no clear
-documentation on the limits and we've seen it vary across APIs. For at least
-one API, the limit is 2,000 requests per hour.
-
-For each API key, these limits are applied across all api.nasa.gov API
-requests. Exceeding these limits will lead to your API key being temporarily
-blocked from making further requests. The block will automatically be lifted
-by waiting an hour. If you need higher rate limits, contact NASA.
-
-=head2 DEMO_KEY Rate Limits
-
-If you do not supply an API key, the C<DEMO_KEY> will be used.
-
-This API key can be used for initially exploring APIs prior to signing up, but
-it has much lower rate limits, so you’re encouraged to signup for your own API
-key if you plan to use the API (signup is quick and easy). The rate limits for
-the C<DEMO_KEY> are:
-
-=over 4
-
-=item * Hourly Limit: 30 requests per IP address per hour
-
-=item * Daily Limit: 50 requests per IP address per day
-
-=back
-
-=head1 REGULAR METHODS
-
-Most of these methods are only valid I<after> you have called a C<get_*> api
-method.
-
-=head2 C<requests_remaining>
-
-The number of requests remaining for the current hour, as determined by the
-C<X-RateLimit-Remaining> header.
-
-=head2 C<last_request_time>
-
-The time of the last request as a unix timestamp.
-
-=head2 C<is_json>
-
-Returns true if the last response was C<application/json>. The response is
-gauranteed to be JSON decoded. Otherwise, you must handle the response for
-yourself. For example, C<GET /planetary/apod> returns an image.
-
-=head2 C<is_demo>
-
-Returns true if the C<DEMO_KEY> is being used (i.e. no API key was passed to
-the constructor and no C<$ENV{NASA_API_KEY}> was set). If the last request
-accepted an API key, this method will still return false if the instance did
-not have an API key available when constructed.
-
-=head1 API METHODS
-
-In addition to the arugments specified below for each method, all methods take
-an I<optional> API key. If you do not provide one, the api key supplied in the
-contructor will be used. If you did not supply one to the contructor,
-C<DEMO_KEY> will be used. Note that the C<DEMO_KEY> is rate limited to 30
-requests per ip address per hour and 50 requests per ip address per day.
-
-Passing in an API key is useful if you have multiple keys and need to use a
-different one for a specific request.
-
-All requests return a raw response. For requests return C<application/json>,
-this response will be the JSON decoded into a Perl data structure. For all
-else, the raw response will be returned.
-
-Because NASA has not provided a full OpenAPI specification, we cannot
-guarantee exactly what will be returned. We do our best to provide a
-specification, but we're very loose with it to avoid validation errors.
-
-To understand what is returned, please see L<WenService::NASA::Spec>.
+To understand what is returned, please see L<WebService::NASA::Schema>.
 
 
 
@@ -326,15 +208,6 @@ Start date of APOD images to retrieve
 Optional.
 
 
-=back
-
-=head1 SEE ALSO
-
-The unofficial NASA OpenAPI specification can be found at
-L<https://github.com/Ovid/nasa-openapi>.
-
-
-
 =head2 C<get_neo_rest_v1_neo_asteroidid>
 
     my $result = $nasa->get_neo_rest_v1_neo_asteroidid(
@@ -354,15 +227,6 @@ Arguments:
 Asteroid SPK-ID correlates to the NASA JPL small body
 
 Required.
-
-
-=back
-
-=head1 SEE ALSO
-
-The unofficial NASA OpenAPI specification can be found at
-L<https://github.com/Ovid/nasa-openapi>.
-
 
 
 =head2 C<get_neo_rest_v1_neo_browse>
@@ -391,15 +255,6 @@ Optional.
 Number of elements per page
 
 Optional.
-
-
-=back
-
-=head1 SEE ALSO
-
-The unofficial NASA OpenAPI specification can be found at
-L<https://github.com/Ovid/nasa-openapi>.
-
 
 
 =head2 C<get_planetary_apod>
@@ -453,15 +308,6 @@ Return the URL of video thumbnail. If an APOD is not a video, this parameter is 
 Optional.
 
 
-=back
-
-=head1 SEE ALSO
-
-The unofficial NASA OpenAPI specification can be found at
-L<https://github.com/Ovid/nasa-openapi>.
-
-
-
 =head2 C<get_planetary_earth_assets>
 
     my $result = $nasa->get_planetary_earth_assets(
@@ -507,15 +353,6 @@ Required.
 Longitude
 
 Required.
-
-
-=back
-
-=head1 SEE ALSO
-
-The unofficial NASA OpenAPI specification can be found at
-L<https://github.com/Ovid/nasa-openapi>.
-
 
 
 =head2 C<get_planetary_earth_imagery>
@@ -581,7 +418,6 @@ Longitude
 
 Required.
 
-
 =back
 
 =head1 SEE ALSO
@@ -589,4 +425,4 @@ Required.
 The unofficial NASA OpenAPI specification can be found at
 L<https://github.com/Ovid/nasa-openapi>.
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 497283710fc1c4aa8b01e317e7926a9f
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 29fc030df98ea825d5e1b4aae07b6399

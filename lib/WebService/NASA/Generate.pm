@@ -11,7 +11,7 @@ use CodeGen::Protection qw(
 );
 use Data::Dumper;
 use File::Find::Rule;
-use File::Slurp qw(read_file);
+use File::Slurp           qw(read_file);
 use File::Spec::Functions qw(catfile);
 use JSONSchema::Validator;
 use Path::Tiny 'path';
@@ -52,16 +52,16 @@ field _template => (
     default => method() { Template->new },
 );
 field _current_openapi => (
-    isa     => Maybe [HashRef],
-    writer  => '_set_current_openapi',
+    isa    => Maybe [HashRef],
+    writer => '_set_current_openapi',
 );
 field _current_server_name => (
-    isa     => Maybe [NonEmptyStr],
-    writer  => '_set_current_server_name',
+    isa    => Maybe [NonEmptyStr],
+    writer => '_set_current_server_name',
 );
 field _current_server_url => (
-    isa     => Maybe [NonEmptyStr],
-    writer  => '_set_current_server_url',
+    isa    => Maybe [NonEmptyStr],
+    writer => '_set_current_server_url',
 );
 
 method BUILD($args) {
@@ -81,13 +81,24 @@ method run() {
         $self->_write_schema_documentation($raw_yaml);
         push @servers => $self->_write_webservice_nasa_server_module($resolved);
     }
+
+    my $template = $self->_template;
+    $template->process(
+        $self->_load_template('webservice_nasa.tt'),
+        { servers => \@servers },
+        \my $output
+    ) or die $template->error;
+    $output = $self->_tidy_code($output);
+
+    my $filename = catfile(qw/lib WebService NASA.pm/);
+    $self->_write_perl( $output, $filename );
 }
 
 method _set_current_server() {
     my $schema = $self->_current_openapi;
     my $server = $schema->{servers}[0]{url}
       or croak("No server for $schema");
-    my $host  = URI->new($server)->host; 
+    my $host = URI->new($server)->host;
     $host =~ s/\./_/g;
     $self->_set_current_server_name( upper_camel_case($host) );
     $self->_set_current_server_url($server);
@@ -103,8 +114,7 @@ method _get_openapi_filenames() {
 }
 
 method _write_webservice_nasa_server_module($resolved) {
-    my $openapi = $self->_current_openapi;
-    my @paths   = sort keys $resolved->{paths}->%*;
+    my @paths = sort keys $resolved->{paths}->%*;
 
     my %endpoints;
     foreach my $path (@paths) {
@@ -130,7 +140,7 @@ method _write_webservice_nasa_server_module($resolved) {
                 Carp::confess("No name for $path");
             };
             say STDERR $self->_perl_to_string($parameters) if $self->debug;
-            next PARAMETER if $name eq 'api_key';
+            next PARAMETER                                 if $name eq 'api_key';
             if ( exists( $endpoints{$method_name}{parameters}{$name} ) ) {
                 croak("Duplicate parameters name '$name' for $path");
             }
@@ -138,22 +148,28 @@ method _write_webservice_nasa_server_module($resolved) {
         }
         $self->_write_test_for_method( $method_name, $endpoints{$method_name} );
     }
-    my $template = $self->_template;
+
+    my $server_name = $self->_current_server_name;
+    my $template    = $self->_template;
     $template->process(
-        $self->_load_template('webservice_nasa.tt'),
-        { endpoints => \%endpoints },
+        $self->_load_template('webservice_nasa_server.tt'),
+        {
+            endpoints    => \%endpoints,
+            server_class => $server_name,
+            server       => $self->_current_server_url,
+        },
         \my $output
     ) or die $template->error;
     $output = $self->_tidy_code($output);
 
-    my $server_name = $self->_current_server_name;
     my $filename = catfile( qw/lib WebService NASA Server/, "$server_name.pm" );
     $self->_write_perl( $output, $filename );
 
     my $server_method = lower_snake_case($server_name) . '_server';
     return {
-        name      => $server_name,
+        class     => $server_name,
         method    => $server_method,
+        url       => $self->_current_server_url,
         endpoints => \%endpoints,
     };
 }
@@ -172,14 +188,15 @@ method _write_webservice_nasa_module(@servers) {
 }
 
 method _write_perl( $output, $filename ) {
-    my $original = -e $filename ? read_file($filename) : $output;
+    my $original = -e $filename && !-z _ ? read_file($filename) : $output;
     if ( $self->debug ) {
         say $original ? "Writing new file $filename." : "Updating $filename";
         say $output if $self->debug > 1;
     }
     return if !$self->write;
+    my $protected = $self->_protected_code( $filename, $original, $output );
     open my $fh, '>', $filename;
-    print {$fh} $self->_protected_code( $filename, $original, $output );
+    print {$fh} $protected;
     close $fh;
 }
 
@@ -194,7 +211,7 @@ method _protected_code( $filename, $existing_code, $protected_code ) {
         );
     }
     catch ($error) {
-        croak "Could not process changes to $filename: $error";
+        Carp::confess("Could not process changes to $filename: $error");
     }
 }
 
@@ -245,7 +262,7 @@ method _write_test_for_method( $method_name, $endpoint ) {
     state $json = Cpanel::JSON::XS->new->utf8->canonical;
     my $body = ref $response_example ? $json->encode($response_example) : $response_example;
 
-    my $filename = "t/${method_name}.t";
+    my $filename = catfile( 't', "${method_name}.t" );
 
     $template->process(
         $self->_load_template('test_file.tt'),
@@ -261,7 +278,7 @@ method _write_test_for_method( $method_name, $endpoint ) {
     ) or die $template->error;
     $output = $self->_tidy_code($output);
 
-    if ( !-e $filename ) {
+    if ( !-e $filename || -z _ ) {
 
         # OK, this test doesn't exist. So we need to use the test_file_new.tt
         # template to insert the test code *between* the codegen markers. This
@@ -284,20 +301,20 @@ method _write_schema_documentation($raw_yaml) {
 
     # Print the template results to STDOUT
     my $server_name = $self->_current_server_name;
-    my $template = $self->_template;
+    my $template    = $self->_template;
     $template->process(
         $self->_load_template('webservice_nasa_schema.tt'),
         {
-            raw_yaml => $raw_yaml,
-            server_name   => $server_name,
-            server_url    => $self->_current_server_url,
+            raw_yaml    => $raw_yaml,
+            server_name => $server_name,
+            server_url  => $self->_current_server_url,
         },
         \my $output
     ) or die $template->error;
     $output = $self->_tidy_code($output);
 
     my $filename = catfile( qw/lib WebService NASA Schema/, "$server_name.pod" );
-    my $original = -e $filename ? read_file($filename) : '';
+    my $original = -e $filename && !-z _ ? read_file($filename) : '';
     if ( $self->debug ) {
         say $original ? "Writing new file $filename." : "Updating $filename";
         say $output if $self->debug > 1;

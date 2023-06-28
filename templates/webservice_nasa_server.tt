@@ -93,7 +93,8 @@ Arguments:
 [% param.value.description %]
 
 [% IF param.value.required %]Required.[% ELSE %]Optional.[% END %]
-[% END %]
+[% END -%]
+[% END -%]
 
 =back
 
