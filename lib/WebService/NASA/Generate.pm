@@ -344,9 +344,7 @@ method _get_openapi($schema) {
     my $raw_yaml = do { local $/; <$fh> };
     close $fh;
     my $openapi  = Load($raw_yaml);
-    my $resolved = Load($raw_yaml);
-
-    resolve_references $resolved;
+    my $resolved = resolve_references($openapi);
     return ( $raw_yaml, $openapi, $resolved );
 }
 

@@ -5,20 +5,21 @@ package WebService::NASA::DataWalk;
 use v5.20.0;
 use warnings;
 use experimental qw( signatures );
+use Storable 'dclone';
+use Carp qw(croak);
+use parent 'Exporter';
 
 our $VERSION   = '.1';
 our $AUTHORITY = 'cpan:OVID';
-use parent 'Exporter';
-
-use Carp qw(croak);
-
 our @EXPORT_OK = qw(resolve_references);
 
 sub resolve_references ($openapi) {
+    my $cloned = dclone($openapi);
 
     # Don't delete components because they can refer to other components
-    my $components = $openapi->{components};
-    __resolve( $components, $openapi );
+    my $components = $cloned->{components};
+    __resolve( $components, $cloned );
+    return $cloned;
 }
 
 sub __resolve ( $components, $resolved ) {
