@@ -184,13 +184,18 @@ method _write_perl( $output, $filename ) {
 }
 
 method _protected_code( $filename, $existing_code, $protected_code ) {
-    return rewrite_code(
-        type           => 'Perl',
-        name           => $filename,
-        existing_code  => $existing_code,
-        protected_code => $protected_code,
-        overwrite      => $self->overwrite,
-    );
+    try {
+        return rewrite_code(
+            type           => 'Perl',
+            name           => $filename,
+            existing_code  => $existing_code,
+            protected_code => $protected_code,
+            overwrite      => $self->overwrite,
+        );
+    }
+    catch ($error) {
+        croak "Could not process changes to $filename: $error";
+    }
 }
 
 method _write_test_for_method( $method_name, $endpoint ) {

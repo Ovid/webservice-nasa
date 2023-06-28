@@ -15,7 +15,7 @@ our $AUTHORITY = 'cpan:OVID';    ## no critic (RequireUseStrict RequireUseWarnin
 # causes the code to die.
 sub import ( $class, %args ) {
     MooseX::Extended::Custom->create(
-        includes => 'method',
+        includes => [qw/method try/],
         provided $^P,
         excludes => 'immutable',
         %args    # you need this to allow customization of your customization
