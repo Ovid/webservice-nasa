@@ -37,9 +37,9 @@ use parent 'Exporter';
 use Scalar::Util;
 use Carp qw(croak);
 
-our @EXPORT  = qw (resolve_references);
+our @EXPORT = qw (resolve_references);
 
-sub resolve_references ( $openapi ) {
+sub resolve_references ($openapi) {
 
     # Don't delete components because they can refer to other components
     my $components = $openapi->{components};
