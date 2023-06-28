@@ -1,4 +1,4 @@
-package WebService::NASA::Generate;
+package WebService::NASA::Generator;
 
 # ABSTRACT: Generate WebService::NASA modules from OpenAPI
 
@@ -6,13 +6,11 @@ use v5.20.0;
 use warnings;
 use Carp             qw(croak);
 use Cpanel::JSON::XS qw(encode_json);
-use Data::Dumper;
 use File::Find::Rule;
 use File::Slurp           qw(read_file);
 use File::Spec::Functions qw(catfile);
 use JSONSchema::Validator;
 use Path::Tiny 'path';
-use Perl::Tidy;
 use String::CamelSnakeKebab qw(
   lower_snake_case
   upper_camel_case
@@ -22,7 +20,7 @@ use URI;
 use YAML::XS qw(Load);
 use autodie  qw(:all);
 
-use WebService::NASA::Utils qw(
+use WebService::NASA::Generator::Utils qw(
   make_method_name
   perl_to_string
   protect_code
@@ -351,7 +349,7 @@ __END__
 
 =head1 SYNOPSIS
 
-    my $generator = WebService::NASA::Generate->new(
+    my $generator = WebService::NASA::Generator->new(
         openapi   => $openapi,
         debug     => $debug,
         write     => $write,

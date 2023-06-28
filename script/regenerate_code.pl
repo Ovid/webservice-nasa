@@ -4,7 +4,7 @@ use v5.20.0;
 use warnings;
 use Getopt::Long;
 use lib 'lib';
-use WebService::NASA::Generate;
+use WebService::NASA::Generator;
 
 GetOptions(
     'openapi=s' => \my $openapi,
@@ -18,7 +18,7 @@ if ( !defined $dir && !defined $openapi ) {
     $dir = 'nasa';
 }
 
-my $generator = WebService::NASA::Generate->new(
+my $generator = WebService::NASA::Generator->new(
     openapi   => $openapi,
     dir       => $dir,
     debug     => $debug,

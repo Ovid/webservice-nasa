@@ -1,4 +1,4 @@
-package WebService::NASA::Utils;
+package WebService::NASA::Generator::Utils;
 
 # ABSTRACT: Traverse Perl data structures deterministically
 
@@ -123,7 +123,7 @@ __END__
 
 =head1 SYNOPSIS
 
- use WebService::NASA::Utils qw(resolve_references);
+ use WebService::NASA::Generator::Utils qw(resolve_references);
  resolve_references($openapi); # rewrites in place
 
 =head1 DESCRIPTION
