@@ -4,11 +4,8 @@ package WebService::NASA::Generate;
 
 use v5.20.0;
 use warnings;
-use Carp                qw(croak);
-use Cpanel::JSON::XS    qw(encode_json);
-use CodeGen::Protection qw(
-  rewrite_code
-);
+use Carp             qw(croak);
+use Cpanel::JSON::XS qw(encode_json);
 use Data::Dumper;
 use File::Find::Rule;
 use File::Slurp           qw(read_file);
@@ -20,13 +17,18 @@ use String::CamelSnakeKebab qw(
   lower_snake_case
   upper_camel_case
 );
-use String::Util qw(trim);
 use Template;
 use URI;
 use YAML::XS qw(Load);
 use autodie  qw(:all);
 
-use WebService::NASA::DataWalk qw(resolve_references);
+use WebService::NASA::Utils qw(
+  make_method_name
+  perl_to_string
+  protect_code
+  resolve_references
+  tidy_code
+);
 use WebService::NASA::Moose types => [
     qw(
       Bool
@@ -88,7 +90,7 @@ method run() {
         { servers => \@servers },
         \my $output
     ) or die $template->error;
-    $output = $self->_tidy_code($output);
+    $output = tidy_code($output);
 
     my $filename = catfile(qw/lib WebService NASA.pm/);
     $self->_write_perl( $output, $filename );
@@ -118,7 +120,7 @@ method _write_webservice_nasa_server_module($resolved) {
 
     my %endpoints;
     foreach my $path (@paths) {
-        my $method_name = $self->_make_method_name($path);
+        my $method_name = make_method_name($path);
         if ( $self->debug ) {
             say "Gathering data for method: $method_name";
         }
@@ -136,11 +138,11 @@ method _write_webservice_nasa_server_module($resolved) {
         PARAMETER: foreach my $parameters ( $route->{parameters}->@* ) {
             $parameters->{route} = $path;
             my $name = $parameters->{name} or do {
-                say STDERR $self->_perl_to_string($parameters);
+                say STDERR perl_to_string($parameters);
                 Carp::confess("No name for $path");
             };
-            say STDERR $self->_perl_to_string($parameters) if $self->debug;
-            next PARAMETER                                 if $name eq 'api_key';
+            say STDERR perl_to_string($parameters) if $self->debug;
+            next PARAMETER                         if $name eq 'api_key';
             if ( exists( $endpoints{$method_name}{parameters}{$name} ) ) {
                 croak("Duplicate parameters name '$name' for $path");
             }
@@ -160,7 +162,7 @@ method _write_webservice_nasa_server_module($resolved) {
         },
         \my $output
     ) or die $template->error;
-    $output = $self->_tidy_code($output);
+    $output = tidy_code($output);
 
     my $filename = catfile( qw/lib WebService NASA Server/, "$server_name.pm" );
     $self->_write_perl( $output, $filename );
@@ -181,7 +183,7 @@ method _write_webservice_nasa_module(@servers) {
         { servers => \@servers },
         \my $output
     ) or die $template->error;
-    $output = $self->_tidy_code($output);
+    $output = tidy_code($output);
 
     my $filename = 'lib/WebService/NASA.pm';
     $self->_write_perl( $output, $filename );
@@ -194,25 +196,10 @@ method _write_perl( $output, $filename ) {
         say $output if $self->debug > 1;
     }
     return if !$self->write;
-    my $protected = $self->_protected_code( $filename, $original, $output );
+    my $protected = protect_code( $filename, $original, $output, $self->overwrite );
     open my $fh, '>', $filename;
     print {$fh} $protected;
     close $fh;
-}
-
-method _protected_code( $filename, $existing_code, $protected_code ) {
-    try {
-        return rewrite_code(
-            type           => 'Perl',
-            name           => $filename,
-            existing_code  => $existing_code,
-            protected_code => $protected_code,
-            overwrite      => $self->overwrite,
-        );
-    }
-    catch ($error) {
-        Carp::confess("Could not process changes to $filename: $error");
-    }
 }
 
 method _write_test_for_method( $method_name, $endpoint ) {
@@ -268,7 +255,7 @@ method _write_test_for_method( $method_name, $endpoint ) {
         $self->_load_template('test_file.tt'),
         {
             method            => $method_name,
-            expected_response => $self->_perl_to_string($response_example),
+            expected_response => perl_to_string($response_example),
             body              => $body,
             content_type      => $content_type,
             content_length    => length($body),
@@ -276,7 +263,7 @@ method _write_test_for_method( $method_name, $endpoint ) {
         },
         \my $output
     ) or die $template->error;
-    $output = $self->_tidy_code($output);
+    $output = tidy_code($output);
 
     if ( !-e $filename || -z _ ) {
 
@@ -311,7 +298,7 @@ method _write_schema_documentation($raw_yaml) {
         },
         \my $output
     ) or die $template->error;
-    $output = $self->_tidy_code($output);
+    $output = tidy_code($output);
 
     my $filename = catfile( qw/lib WebService NASA Schema/, "$server_name.pod" );
     my $original = -e $filename && !-z _ ? read_file($filename) : '';
@@ -323,16 +310,6 @@ method _write_schema_documentation($raw_yaml) {
     open my $fh, '>', $filename;
     print {$fh} $output;
     close $fh;
-}
-
-method _perl_to_string($perl) {
-    local $Data::Dumper::Indent        = 1;
-    local $Data::Dumper::Sortkeys      = 1;
-    local $Data::Dumper::Terse         = 1;
-    local $Data::Dumper::Quotekeys     = 0;
-    local $Data::Dumper::Trailingcomma = 1;
-    local $Data::Dumper::Deepcopy      = 1;
-    return Dumper($perl);
 }
 
 method _get_openapi($schema) {
@@ -362,42 +339,12 @@ method _assert_valid_schema($filename) {
     };
 }
 
-method _tidy_code($code) {
-    my ( $stderr, $tidied );
-
-    my $perltidyrc = path('.perltidyrc')->absolute;
-    open my $fh, '<', $perltidyrc;
-    $perltidyrc = do { local $/; <$fh> };
-    close $fh;
-
-    local @ARGV = ();
-    Perl::Tidy::perltidy(
-        source      => \$code,
-        destination => \$tidied,
-        stderr      => \$stderr,
-        perltidyrc  => \$perltidyrc,
-    ) and die "Perl::Tidy error: $stderr";
-
-    return $tidied;
-}
-
 method _load_template($filename) {
     my $path = path("templates/$filename")->absolute;
     open my $fh, '<', $path;
     my $contents = do { local $/; <$fh> };
     close $fh;
     return \$contents
-}
-
-method _make_method_name($string) {
-    $string = trim( lc($string) );
-    $string =~ s/[{}]//g;
-    $string =~ s/\s+/_/g;
-    $string =~ tr/-/_/;
-    $string =~ tr/\//_/;
-    $string =~ s/__*/_/g;
-    $string = lower_snake_case($string);
-    return "get$string";
 }
 
 __END__

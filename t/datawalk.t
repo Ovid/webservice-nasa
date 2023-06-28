@@ -2,7 +2,7 @@
 
 use Test::Most;
 use lib 'lib';
-use WebService::NASA::DataWalk qw(resolve_references);
+use WebService::NASA::Utils qw(resolve_references);
 
 use DDP;
 my $data = openapi();
