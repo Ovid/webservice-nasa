@@ -9,9 +9,9 @@ use Clone 'clone';
 use Carp qw(croak);
 use Data::Dumper;
 use Feature::Compat::Try;
-use CodeGen::Protection qw(rewrite_code);
-use Path::Tiny qw(path);
-use String::Util qw(trim);
+use CodeGen::Protection     qw(rewrite_code);
+use Path::Tiny              qw(path);
+use String::Util            qw(trim);
 use String::CamelSnakeKebab qw(
   lower_snake_case
 );
@@ -62,7 +62,7 @@ sub _resolve_reference ( $components, $ref ) {
     return $components->{$type}{$name} || croak "Could not resolve $ref";
 }
 
-sub make_method_name($string) {
+sub make_method_name ($string) {
     $string = trim( lc($string) );
     $string =~ s/[{}]//g;
     $string =~ s/\s+/_/g;
@@ -73,7 +73,7 @@ sub make_method_name($string) {
     return "get$string";
 }
 
-sub perl_to_string($perl) {
+sub perl_to_string ($perl) {
     local $Data::Dumper::Indent        = 1;
     local $Data::Dumper::Sortkeys      = 1;
     local $Data::Dumper::Terse         = 1;
@@ -83,7 +83,7 @@ sub perl_to_string($perl) {
     return Dumper($perl);
 }
 
-sub protect_code( $filename, $existing_code, $protected_code, $overwrite ) {
+sub protect_code ( $filename, $existing_code, $protected_code, $overwrite ) {
     try {
         return rewrite_code(
             type           => 'Perl',
@@ -98,7 +98,7 @@ sub protect_code( $filename, $existing_code, $protected_code, $overwrite ) {
     }
 }
 
-sub tidy_code($code) {
+sub tidy_code ($code) {
     my ( $stderr, $tidied );
 
     my $perltidyrc = path('.perltidyrc')->absolute;
