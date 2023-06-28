@@ -3,10 +3,10 @@ severity = 4
 exclude = Freenode
 
 [TestingAndDebugging::RequireUseStrict]
-equivalent_modules = Moose Test::Most MooseX::Extended::Custom WebService::NASA::Moose
+equivalent_modules = Test::Most MooseX::Extended::Custom WebService::NASA::Moose MooseX::Extended::Role::Custom WebService::NASA::Moose::Role
 
 [TestingAndDebugging::RequireUseWarnings]
-equivalent_modules = Moose Test::Most MooseX::Extended::Custom WebService::NASA::Moose
+equivalent_modules = Test::Most MooseX::Extended::Custom WebService::NASA::Moose MooseX::Extended::Role::Custom WebService::NASA::Moose::Role
 
 [TestingAndDebugging::ProhibitNoWarnings]
 allow = experimental::signatures experimental::postderef _disabled_warnings
