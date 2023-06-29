@@ -3,7 +3,7 @@ package WebService::NASA;
 our $VERSION   = '0.1';          ## no critic (RequireUseStrict RequireUseWarnings)
 our $AUTHORITY = 'cpan:OVID';    ## no critic (RequireUseStrict RequireUseWarnings)
 
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 6c606b924d10d14e8d2e4299e33a1ac1
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 545ce08c33911612b43e9692ac9f9f71
 
 # ABSTRACT: Perl interface to NASA's public APIs
 
@@ -221,7 +221,6 @@ Method for C</neo/rest/v1/feed>.
 
 Retrieve a list of Asteroids based on their closest approach date to Earth.
 
-
 Arguments:
 
 =over 4
@@ -300,9 +299,8 @@ Optional.
 
 Method for C</planetary/apod>.
 
-One of the most popular websites at NASA is the Astronomy Picture of the Day. In fact, this website is one of the most popular websites across all federal agencies. It has the popular appeal of a Justin Bieber video. This endpoint structures the APOD imagery and associated metadata so that it can be repurposed for other applications. In addition, if the concept_tags parameter is set to True, then keywords derived from the image explanation are returned. These keywords could be used as auto-generated hashtags for twitter or instagram feeds; but generally help with discoverability of relevant imagery.
-The full documentation for this API can be found in the APOD API Github repository.
-
+One of the most popular websites at NASA is the L<Astronomy Picture of the Day|https://apod.nasa.gov/apod/astropix.html>. In fact, this website is one of the L<most popular websites|https://analytics.usa.gov/> across all federal agencies. It has the popular appeal of a Justin Bieber video. This endpoint structures the APOD imagery and associated metadata so that it can be repurposed for other applications. In addition, if the C<concept_tags> parameter is set to C<True>, then keywords derived from the image explanation are returned. These keywords could be used as auto-generated hashtags for twitter or instagram feeds; but generally help with discoverability of relevant imagery.
+The full documentation for this API can be found in L<the APOD API Github repository|https://github.com/nasa/apod-api>.
 
 Arguments:
 
@@ -310,7 +308,7 @@ Arguments:
 
 =item * C<count> 
 
-If this is specified then count randomly chosen images will be returned. Cannot be used with date or start_date and end_date.
+If this is specified then count randomly chosen images will be returned. Cannot be used with C<date> or C<start_date> and C<end_date>.
 
 Optional.
 
@@ -350,12 +348,13 @@ Optional.
 
 Method for C</planetary/earth/assets>.
 
-This endpoint retrieves the date-times and asset names for closest available
-imagery for a supplied location and date. The satellite passes over each point
-on earth roughly once every sixteen days. This is an amazing visualization of
-the acquisition pattern for Landsat 8 imagery. The objective of this endpoint
-is primarily to support the use of the imagery endpoint.
-
+This endpoint retrieves the date-times and asset names for closest
+available imagery for a supplied location and date. The satellite
+passes over each point on earth roughly once every sixteen days. L<This
+is an amazing
+visualization|https://earthobservatory.nasa.gov/features/LandsatBigData>
+of the acquisition pattern for Landsat 8 imagery. The objective of
+this endpoint is primarily to support the use of the imagery endpoint.
 
 Arguments:
 
@@ -412,8 +411,7 @@ Instead, the image closest to the supplied date is returned.
 
 The cloud score was an optional calculation that returns the percentage of
 the queried image that is covered by clouds, but it is not available in
-current versions of the API. If False If HTTP Request
-
+current versions of the API.
 
 Arguments:
 
@@ -456,4 +454,4 @@ Required.
 The unofficial NASA OpenAPI specification can be found at
 L<https://github.com/Ovid/nasa-openapi>.
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 6c606b924d10d14e8d2e4299e33a1ac1
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 545ce08c33911612b43e9692ac9f9f71

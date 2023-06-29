@@ -4,27 +4,27 @@ package WebService::NASA::Generator;
 
 use v5.20.0;
 use warnings;
-use Carp             qw(croak);
-use Cpanel::JSON::XS qw(encode_json);
-use File::Find::Rule;
-use File::Slurp           qw(read_file);
-use File::Spec::Functions qw(catfile);
-use JSONSchema::Validator;
-use Path::Tiny 'path';
+use Carp                    qw(croak);
+use Cpanel::JSON::XS        qw(encode_json);
+use File::Slurp             qw(read_file);
+use File::Spec::Functions   qw(catfile);
+use Path::Tiny              qw(path);
 use String::CamelSnakeKebab qw(
   lower_snake_case
   upper_camel_case
 );
+use YAML::XS qw(Load);
 use Template;
 use URI;
-use YAML::XS qw(Load);
-use autodie  qw(:all);
+use File::Find::Rule;
+use JSONSchema::Validator;
+use autodie qw(:all);
 
 use WebService::NASA::Generator::Utils qw(
   make_method_name
   perl_to_string
   protect_code
-  resolve_references
+  preprocess_openapi
   tidy_code
 );
 use WebService::NASA::Moose types => [
@@ -319,7 +319,7 @@ method _get_openapi($schema) {
     my $raw_yaml = do { local $/; <$fh> };
     close $fh;
     my $openapi  = Load($raw_yaml);
-    my $resolved = resolve_references($openapi);
+    my $resolved = preprocess_openapi($openapi);
     return ( $raw_yaml, $openapi, $resolved );
 }
 

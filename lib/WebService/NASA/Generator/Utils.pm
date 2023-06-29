@@ -4,20 +4,22 @@ package WebService::NASA::Generator::Utils;
 
 use v5.20.0;
 use warnings;
-use experimental qw( signatures );
-use Clone 'clone';
-use Carp qw(croak);
-use Data::Dumper;
-use Feature::Compat::Try;
+use experimental            qw(signatures);
+use Clone                   qw(clone);
+use Carp                    qw(croak);
+use Data::Dumper            qw(Dumper);
 use CodeGen::Protection     qw(rewrite_code);
 use Path::Tiny              qw(path);
 use String::Util            qw(trim);
 use String::CamelSnakeKebab qw(
   lower_snake_case
 );
+
+use Markdown::Pod;
+use Feature::Compat::Try;
 use Perl::Tidy;
-use autodie ':all';
-use parent 'Exporter';
+use autodie qw(:all);
+use parent  qw(Exporter);
 
 our $VERSION   = '.1';
 our $AUTHORITY = 'cpan:OVID';
@@ -25,15 +27,16 @@ our @EXPORT_OK = qw(
   make_method_name
   perl_to_string
   protect_code
-  resolve_references
+  preprocess_openapi
   tidy_code
 );
 
-sub resolve_references ($openapi) {
+sub preprocess_openapi ($openapi) {
     my $cloned = clone($openapi);
 
     # Don't delete components because they can refer to other components
     my $components = $cloned->{components};
+    $DB::single = 1;
     _recursively_find_references( $components, $cloned );
     return $cloned;
 }
@@ -50,8 +53,16 @@ sub _recursively_find_references ( $components, $resolved ) {
             my $reference = _resolve_reference( $components, delete $resolved->{'$ref'} );
             $resolved->%* = ( $reference->%*, $resolved->%* );
         }
+        if ( exists $resolved->{description} ) {
+            state $markdown = Markdown::Pod->new;
+            $resolved->{description} = $markdown->markdown_to_pod( markdown => $resolved->{description} );
+
+            # markdown_to_pod adds a newline at the end
+            chomp $resolved->{description};
+        }
         foreach my $key ( sort keys $resolved->%* ) {
             my $item = $resolved->{$key};
+        $DB::single = 1 if 'tags' eq $key;
             _recursively_find_references( $components, $item );
         }
     }
@@ -123,8 +134,8 @@ __END__
 
 =head1 SYNOPSIS
 
- use WebService::NASA::Generator::Utils qw(resolve_references);
- resolve_references($openapi); # rewrites in place
+ use WebService::NASA::Generator::Utils qw(preprocess_openapi);
+ my $processed = preprocess_openapi($openapi);
 
 =head1 DESCRIPTION
 
