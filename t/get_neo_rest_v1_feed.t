@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 8f9f67ed138d735d91d3c7059b07ba8f
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: a9f80d46a25740a9a0a489374236cc5e
 
 # Because the NASA services can be unreliable, we use a local cache of
 # the response. This test is primarily to validate that our OpenAPI spec is
@@ -21,7 +21,7 @@ if ( $response =~ /X-Ratelimit-Remaining: (\d+)/ ) {
     $limit_remaining = $1;
 }
 
-subtest 'Validate Response via OpenAPI' => sub {
+subtest 'get neo rest feed' => sub {
     set_response($response);
     my $response;
     lives_ok {
@@ -1301,6 +1301,6 @@ X-XSS-Protection: 1; mode=block
 END
 }
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 8f9f67ed138d735d91d3c7059b07ba8f
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: a9f80d46a25740a9a0a489374236cc5e
 
 done_testing;

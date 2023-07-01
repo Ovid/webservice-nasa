@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: d7380207544afe0df8b0f7bdc18655ff
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 11ccd8103180a0ceda6373f8154a1ad9
 
 # Because the NASA services can be unreliable, we use a local cache of
 # the response. This test is primarily to validate that our OpenAPI spec is
@@ -21,7 +21,7 @@ if ( $response =~ /X-Ratelimit-Remaining: (\d+)/ ) {
     $limit_remaining = $1;
 }
 
-subtest 'Validate Response via OpenAPI' => sub {
+subtest 'get assets for a location' => sub {
     set_response($response);
     my $response;
     lives_ok {
@@ -65,6 +65,6 @@ pretend this is binary content
 END
 }
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: d7380207544afe0df8b0f7bdc18655ff
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 11ccd8103180a0ceda6373f8154a1ad9
 
 done_testing;

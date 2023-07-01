@@ -17,7 +17,7 @@ if ( $response =~ /X-Ratelimit-Remaining: (\d+)/ ) {
     $limit_remaining = $1;
 }
 
-subtest 'Validate Response via OpenAPI' => sub {
+subtest '[% x_test.name %]' => sub {
     set_response( $response );
     my $response; 
     lives_ok { 

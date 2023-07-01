@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: aaa60dbf3eea626e901040001d2f2083
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 5050a06dd6f1b287ccf5878b849376da
 
 # Because the NASA services can be unreliable, we use a local cache of
 # the response. This test is primarily to validate that our OpenAPI spec is
@@ -21,7 +21,7 @@ if ( $response =~ /X-Ratelimit-Remaining: (\d+)/ ) {
     $limit_remaining = $1;
 }
 
-subtest 'Validate Response via OpenAPI' => sub {
+subtest 'get random asteroid' => sub {
     set_response($response);
     my $response;
     lives_ok {
@@ -4920,6 +4920,6 @@ X-XSS-Protection: 1; mode=block
 END
 }
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: aaa60dbf3eea626e901040001d2f2083
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 5050a06dd6f1b287ccf5878b849376da
 
 done_testing;
