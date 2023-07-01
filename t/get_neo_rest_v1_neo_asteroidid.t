@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 49cd6cc1e38b2114e8047d9759f0d937
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: b0544e8f48b05ba2de629642a09d8b3d
 
 # Because the NASA services can be unreliable, we use a local cache of
 # the response. This test is primarily to validate that our OpenAPI spec is
@@ -25,7 +25,9 @@ subtest 'Validate Response via OpenAPI' => sub {
     set_response( default() );
     my $response;
     lives_ok {
-        $response = $nasa->get_neo_rest_v1_neo_asteroidid( asteroidId => '3542519', );
+        $response = $nasa->get_neo_rest_v1_neo_asteroidid(
+            asteroidId => '3542519',
+        );
     }
     'get_neo_rest_v1_neo_asteroidid survived OpenAPI validation';
 
@@ -4918,6 +4920,6 @@ X-XSS-Protection: 1; mode=block
 END
 }
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 49cd6cc1e38b2114e8047d9759f0d937
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: b0544e8f48b05ba2de629642a09d8b3d
 
 done_testing;

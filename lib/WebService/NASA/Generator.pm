@@ -217,8 +217,13 @@ method _write_test_for_method( $method_name, $endpoint ) {
     my $response_content = $endpoint->{full}{responses}{200}{content}{$content_type};
     my $x_test           = $response_content->{'x-test'};
 
+    unless ($x_test) {
+        warn "No x-test for $path. No test created.";
+        return;
+    }
+
     # eventually we'll want mulitple examples, but for now, we'll just use one
-    my $response_example = $x_test ? $x_test->[0]{response}{expected} : $response_content->{example};
+    my $response_example = $x_test->[0]{response}{expected};
 
     # ok, we didn't have a single example, but we have might have multiple
     # examples. APOD does this because it might return a list of objects or

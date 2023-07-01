@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 17a6f00a896ac7ed09ae21e6330f1242
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: ef20624228f06a773e7608e689b2e9d5
 
 # Because the NASA services can be unreliable, we use a local cache of
 # the response. This test is primarily to validate that our OpenAPI spec is
@@ -25,7 +25,9 @@ subtest 'Validate Response via OpenAPI' => sub {
     set_response( default() );
     my $response;
     lives_ok {
-        $response = $nasa->get_planetary_apod( date => '2018-02-04', );
+        $response = $nasa->get_planetary_apod(
+            date => '2018-02-04',
+        );
     }
     'get_planetary_apod survived OpenAPI validation';
 
@@ -85,6 +87,6 @@ X-XSS-Protection: 1; mode=block
 END
 }
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 17a6f00a896ac7ed09ae21e6330f1242
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: ef20624228f06a773e7608e689b2e9d5
 
 done_testing;
