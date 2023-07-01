@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: b68866ec45e7ab7a52f3126c5f98e382
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 40257de14f23d3915b695ac43cfe1ea0
 
 # Because the NASA services can be unreliable, we use a local cache of
 # the response. This test is primarily to validate that our OpenAPI spec is
@@ -14,15 +14,14 @@ use Test::Most;
 use WebService::NASA::Test qw( set_response );
 
 my $nasa = WebService::NASA->new;
+subtest 'get assets for a location' => sub {
+    my $get_assets_for_a_location = get_assets_for_a_location();
+    my $limit_remaining;
+    if ( $get_assets_for_a_location =~ /X-Ratelimit-Remaining: (\d+)/ ) {
+        $limit_remaining = $1;
+    }
 
-my $default_response = default();
-my $limit_remaining;
-if ( $default_response =~ /X-Ratelimit-Remaining: (\d+)/ ) {
-    $limit_remaining = $1;
-}
-
-subtest 'Validate Response via OpenAPI' => sub {
-    set_response( default() );
+    set_response($get_assets_for_a_location);
     my $response;
     lives_ok {
         $response = $nasa->get_planetary_earth_imagery(
@@ -32,16 +31,16 @@ subtest 'Validate Response via OpenAPI' => sub {
     'get_planetary_earth_imagery survived OpenAPI validation';
 
     my $expected = 'pretend this is binary content';
-    if ( $nasa->is_json ) {
-        eq_or_diff $response, $expected, 'get_planetary_earth_imagery response is decoded correctly' if $nasa->is_json;
+    if ( $response->is_json ) {
+        eq_or_diff $response->content, $expected, 'get_neo_rest_v1_feed response is decoded correctly';
     }
     else {
-        ok defined $response, 'get_planetary_earth_imagery response is defined';
+        ok defined $response->content, 'get_neo_rest_v1_feed response is defined';
     }
-    is $nasa->requests_remaining, $limit_remaining, 'requests_remaining matches headers';
+    is $response->requests_remaining, $limit_remaining, 'requests_remaining matches headers';
 };
 
-sub default {
+sub get_assets_for_a_location {
     return <<'END';
 HTTP/1.1 200 OK
 Access-Control-Allow-Origin: *
@@ -65,6 +64,6 @@ pretend this is binary content
 END
 }
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: b68866ec45e7ab7a52f3126c5f98e382
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 40257de14f23d3915b695ac43cfe1ea0
 
 done_testing;

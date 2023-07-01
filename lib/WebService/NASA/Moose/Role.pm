@@ -1,9 +1,8 @@
-package WebService::NASA::Moose;
+package WebService::NASA::Moose::Role;
 
-# ABSTRACT: MooseX::Extended::Custom for WebService::NASA
+# ABSTRACT: MooseX::Extended:Role for WebService::NASA
 
-use MooseX::Extended::Custom;
-use PerlX::Maybe 'provided';
+use MooseX::Extended::Role::Custom;
 our $VERSION   = '0.1';          ## no critic (RequireUseStrict RequireUseWarnings)
 our $AUTHORITY = 'cpan:OVID';    ## no critic (RequireUseStrict RequireUseWarnings)
 
@@ -14,10 +13,8 @@ our $AUTHORITY = 'cpan:OVID';    ## no critic (RequireUseStrict RequireUseWarnin
 # the class to be made immutable before the we apply everything we need. This
 # causes the code to die.
 sub import ( $class, %args ) {
-    MooseX::Extended::Custom->create(
-        includes => [qw/method try/],
-        provided $^P,
-        excludes => 'immutable',
+    MooseX::Extended::Role::Custom->create(
+        includes => ['method'],
         %args    # you need this to allow customization of your customization
     );
 }

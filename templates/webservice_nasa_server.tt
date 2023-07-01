@@ -1,0 +1,121 @@
+# ABSTRACT: Perl interface to NASA's public APIs
+
+use v5.20.0;
+use WebService::NASA::Moose types => [
+    qw(
+      ArrayRef
+      NonEmptyStr
+      Optional
+    )
+];
+
+# in theory, WebService::NASA::Role::Server can consume DelegateParams, but
+# but we're getting an error that these methods are not provided, even though
+# they are. It works with WebService::NASA::Server::ApiNasaGov, but not with
+# WebService::NASA::Server::EonetGsfcNasaGov. I don't know why.
+with qw(
+  WebService::NASA::Role::DelegatedParams
+  WebService::NASA::Role::Server
+);
+
+use PerlX::Maybe   qw(maybe);
+use Type::Params -sigs;
+
+# Begin generated code here
+
+method _schema_doc () {
+    return '[% schema_doc %]';
+}
+
+[% FOR method IN endpoints.keys.sort;
+       definition = endpoints.$method;
+       params     = definition.parameters;
+%]
+signature_for [% method %] => (
+    method => 1,
+    named  => [
+        [%-FOREACH param IN params -%]
+        [% param.key %] => [% IF param.value.required %]NonEmptyStr[% ELSE %]Optional[NonEmptyStr][% END %],
+        [% END -%]
+        [% IF security %]api_key => Optional[NonEmptyStr],[% END -%]
+    ],
+);
+
+method [% method %] ($query) {
+    return $self->_get_response( 
+        route  => '[% definition.endpoint %]',
+        query => {
+            [%- FOREACH param IN params -%]
+                [% IF !param.value.required %]maybe [% END %][% param.key %] => $query->{[% param.key %]},
+            [% END -%]
+            [% IF security %]maybe api_key => $query->{api_key},[% END -%]
+        }
+    );
+}
+[% END %]
+
+__END__
+
+=head1 SYNOPSIS
+
+    use WebService::NASA::Server::[% server_class %]
+
+    [%- IF security -%]
+    my $api = WebService::NASA::Server::[% server_class %]->new(
+        api_key => 'your_api_key',
+    );
+    [%- ELSE -%]
+    my $api = WebService::NASA::Server::[% server_class %]->new;
+    [%- END %]
+
+=head1 DESCRIPTION
+
+Gives acess to the endpoints at L<[% server %]>. You probably want
+C<WebService::NASA> instead, as it's the front-end for this module.
+
+Please see L<https://api.nasa.gov> for more information. You can sign up for
+a free API key there.
+
+=head1 METHODS
+
+[% FOR method IN endpoints.keys.sort;
+       definition = endpoints.$method;
+       params     = definition.parameters;
+%]
+
+=head2 C<[% method %]>
+
+    [%- USE PerlTidy; FILTER $PerlTidy %]
+    my $result = $nasa->[% method %](
+        [%- IF params -%]
+          [%- FOREACH param IN params -%]
+            [% param.key %] => $[% param.key %],
+          [% END -%]
+        [%- END -%]
+    );
+    [%- END -%]
+
+Method for C<[% definition.endpoint %]>.
+
+To understand what is returned, please see L<WebService::NASA::Schema::[% server_class %]>.
+
+[% definition.full.description %]
+
+Arguments:
+
+=over 4
+[% FOREACH param IN params %]
+=item * C<[% param.key %]> 
+
+[% param.value.description %]
+
+[% IF param.value.required %]Required.[% ELSE %]Optional.[% END %]
+[% END -%]
+[% END -%]
+
+=back
+
+=head1 SEE ALSO
+
+The unofficial NASA OpenAPI specification can be found at
+L<https://github.com/Ovid/nasa-openapi>.

@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 26adaf5ccad54971b89dc52dea1ebfd4
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: db0e20d6150c954e74d30488a4096b11
 
 # Because the NASA services can be unreliable, we use a local cache of
 # the response. This test is primarily to validate that our OpenAPI spec is
@@ -14,15 +14,14 @@ use Test::Most;
 use WebService::NASA::Test qw( set_response );
 
 my $nasa = WebService::NASA->new;
+subtest 'get assets for a location' => sub {
+    my $get_assets_for_a_location = get_assets_for_a_location();
+    my $limit_remaining;
+    if ( $get_assets_for_a_location =~ /X-Ratelimit-Remaining: (\d+)/ ) {
+        $limit_remaining = $1;
+    }
 
-my $default_response = default();
-my $limit_remaining;
-if ( $default_response =~ /X-Ratelimit-Remaining: (\d+)/ ) {
-    $limit_remaining = $1;
-}
-
-subtest 'Validate Response via OpenAPI' => sub {
-    set_response( default() );
+    set_response($get_assets_for_a_location);
     my $response;
     lives_ok {
         $response = $nasa->get_planetary_earth_assets(
@@ -42,16 +41,16 @@ subtest 'Validate Response via OpenAPI' => sub {
         url             =>
           'https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/ea0061d06542c151df676804213b0e32-e13a44f7bfe19cc2a7f5c23a20921213:getPixels',
     };
-    if ( $nasa->is_json ) {
-        eq_or_diff $response, $expected, 'get_planetary_earth_assets response is decoded correctly' if $nasa->is_json;
+    if ( $response->is_json ) {
+        eq_or_diff $response->content, $expected, 'get_neo_rest_v1_feed response is decoded correctly';
     }
     else {
-        ok defined $response, 'get_planetary_earth_assets response is defined';
+        ok defined $response->content, 'get_neo_rest_v1_feed response is defined';
     }
-    is $nasa->requests_remaining, $limit_remaining, 'requests_remaining matches headers';
+    is $response->requests_remaining, $limit_remaining, 'requests_remaining matches headers';
 };
 
-sub default {
+sub get_assets_for_a_location {
     return <<'END';
 HTTP/1.1 200 OK
 Access-Control-Allow-Origin: *
@@ -75,6 +74,6 @@ X-XSS-Protection: 1; mode=block
 END
 }
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 26adaf5ccad54971b89dc52dea1ebfd4
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: db0e20d6150c954e74d30488a4096b11
 
 done_testing;

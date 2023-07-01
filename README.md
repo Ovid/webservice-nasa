@@ -119,7 +119,7 @@ not have an API key available when constructed.
 
 # API METHODS
 
-In addition to the arugments specified below for each method, all methods take
+In addition to the arguments specified below for each method, all methods take
 an _optional_ API key. If you do not provide one, the api key supplied in the
 contructor will be used. If you did not supply one to the contructor,
 `DEMO_KEY` will be used. Note that the `DEMO_KEY` is rate limited to 30
@@ -136,7 +136,11 @@ Because NASA has not provided a full OpenAPI specification, we cannot
 guarantee exactly what will be returned. We do our best to provide a
 specification, but we're very loose with it to avoid validation errors.
 
-To understand what is returned, please see [WenService::NASA::Spec](https://metacpan.org/pod/WenService%3A%3ANASA%3A%3ASpec).
+To understand what is returned, please see [WebService::NASA::Schema](https://metacpan.org/pod/WebService%3A%3ANASA%3A%3ASchema).
+
+# Server `https://api.nasa.gov`
+
+Methods are delegated to [WebService::NASA::Server::ApiNasaGov](https://metacpan.org/pod/WebService%3A%3ANASA%3A%3AServer%3A%3AApiNasaGov).
 
 ## `get_neo_rest_v1_feed`
 
@@ -165,11 +169,6 @@ Arguments:
 
     Optional.
 
-# SEE ALSO
-
-The unofficial NASA OpenAPI specification can be found at
-[https://github.com/Ovid/nasa-openapi](https://github.com/Ovid/nasa-openapi).
-
 ## `get_neo_rest_v1_neo_asteroidid`
 
 ```perl
@@ -189,11 +188,6 @@ Arguments:
     Asteroid SPK-ID correlates to the NASA JPL small body
 
     Required.
-
-# SEE ALSO
-
-The unofficial NASA OpenAPI specification can be found at
-[https://github.com/Ovid/nasa-openapi](https://github.com/Ovid/nasa-openapi).
 
 ## `get_neo_rest_v1_neo_browse`
 
@@ -222,11 +216,6 @@ Arguments:
 
     Optional.
 
-# SEE ALSO
-
-The unofficial NASA OpenAPI specification can be found at
-[https://github.com/Ovid/nasa-openapi](https://github.com/Ovid/nasa-openapi).
-
 ## `get_planetary_apod`
 
 ```perl
@@ -241,14 +230,14 @@ my $result = $nasa->get_planetary_apod(
 
 Method for `/planetary/apod`.
 
-One of the most popular websites at NASA is the Astronomy Picture of the Day. In fact, this website is one of the most popular websites across all federal agencies. It has the popular appeal of a Justin Bieber video. This endpoint structures the APOD imagery and associated metadata so that it can be repurposed for other applications. In addition, if the concept\_tags parameter is set to True, then keywords derived from the image explanation are returned. These keywords could be used as auto-generated hashtags for twitter or instagram feeds; but generally help with discoverability of relevant imagery.
-The full documentation for this API can be found in the APOD API Github repository.
+One of the most popular websites at NASA is the [Astronomy Picture of the Day](https://apod.nasa.gov/apod/astropix.html). In fact, this website is one of the [most popular websites](https://analytics.usa.gov/) across all federal agencies. It has the popular appeal of a Justin Bieber video. This endpoint structures the APOD imagery and associated metadata so that it can be repurposed for other applications. In addition, if the `concept_tags` parameter is set to `True`, then keywords derived from the image explanation are returned. These keywords could be used as auto-generated hashtags for twitter or instagram feeds; but generally help with discoverability of relevant imagery.
+The full documentation for this API can be found in [the APOD API Github repository](https://github.com/nasa/apod-api).
 
 Arguments:
 
 - `count` 
 
-    If this is specified then count randomly chosen images will be returned. Cannot be used with date or start\_date and end\_date.
+    If this is specified then count randomly chosen images will be returned. Cannot be used with `date` or `start_date` and `end_date`.
 
     Optional.
 
@@ -276,11 +265,6 @@ Arguments:
 
     Optional.
 
-# SEE ALSO
-
-The unofficial NASA OpenAPI specification can be found at
-[https://github.com/Ovid/nasa-openapi](https://github.com/Ovid/nasa-openapi).
-
 ## `get_planetary_earth_assets`
 
 ```perl
@@ -294,11 +278,13 @@ my $result = $nasa->get_planetary_earth_assets(
 
 Method for `/planetary/earth/assets`.
 
-This endpoint retrieves the date-times and asset names for closest available
-imagery for a supplied location and date. The satellite passes over each point
-on earth roughly once every sixteen days. This is an amazing visualization of
-the acquisition pattern for Landsat 8 imagery. The objective of this endpoint
-is primarily to support the use of the imagery endpoint.
+This endpoint retrieves the date-times and asset names for closest
+available imagery for a supplied location and date. The satellite
+passes over each point on earth roughly once every sixteen days. [This
+is an amazing
+visualization](https://earthobservatory.nasa.gov/features/LandsatBigData)
+of the acquisition pattern for Landsat 8 imagery. The objective of
+this endpoint is primarily to support the use of the imagery endpoint.
 
 Arguments:
 
@@ -325,11 +311,6 @@ Arguments:
     Longitude
 
     Required.
-
-# SEE ALSO
-
-The unofficial NASA OpenAPI specification can be found at
-[https://github.com/Ovid/nasa-openapi](https://github.com/Ovid/nasa-openapi).
 
 ## `get_planetary_earth_imagery`
 
@@ -359,7 +340,7 @@ Instead, the image closest to the supplied date is returned.
 
 The cloud score was an optional calculation that returns the percentage of
 the queried image that is covered by clouds, but it is not available in
-current versions of the API. If False If HTTP Request
+current versions of the API.
 
 Arguments:
 
@@ -398,7 +379,106 @@ Arguments:
 The unofficial NASA OpenAPI specification can be found at
 [https://github.com/Ovid/nasa-openapi](https://github.com/Ovid/nasa-openapi).
 
-\#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 497283710fc1c4aa8b01e317e7926a9f
+# Server `https://eonet.gsfc.nasa.gov/api/v3/`
+
+Methods are delegated to [WebService::NASA::Server::EonetGsfcNasaGov](https://metacpan.org/pod/WebService%3A%3ANASA%3A%3AServer%3A%3AEonetGsfcNasaGov).
+
+## `get_events`
+
+```perl
+my $result = $nasa->get_events(
+    bbox     => $bbox,
+    category => $category,
+    days     => $days,
+    end      => $end,
+    limit    => $limit,
+    magID    => $magID,
+    magMax   => $magMax,
+    magMin   => $magMin,
+    source   => $source,
+    start    => $start,
+    status   => $status,
+);
+```
+
+Method for `/events`.
+
+Returns a list of natural events currently occurring on Earth.
+
+Arguments:
+
+- `bbox` 
+
+    Query using a bounding box for all events with datapoints that fall within. This uses two pairs of coordinates: the upper left hand corner (lon,lat) followed by the lower right hand corner (lon,lat).
+
+    Optional.
+
+- `category` 
+
+    Category of each earth event
+
+    Optional.
+
+- `days` 
+
+    The maximum number of days to return
+
+    Optional.
+
+- `end` 
+
+    The end date of the events
+
+    Optional.
+
+- `limit` 
+
+    The maximum number of events to return
+
+    Optional.
+
+- `magID` 
+
+    EONET Event Magnitudes
+
+    Optional.
+
+- `magMax` 
+
+    The maximum magnitude of the events
+
+    Optional.
+
+- `magMin` 
+
+    The minimum magnitude of the events
+
+    Optional.
+
+- `source` 
+
+    Source of each earth event
+
+    Optional.
+
+- `start` 
+
+    The start date of the events
+
+    Optional.
+
+- `status` 
+
+    Status of each earth event
+
+    Optional.
+
+# SEE ALSO
+
+The unofficial NASA OpenAPI specification can be found at
+[https://github.com/Ovid/nasa-openapi](https://github.com/Ovid/nasa-openapi).
+
+\#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: c16f9aadede5d0b5171ea1a9df93c1c4
 
 # AUTHOR
 
@@ -413,3 +493,27 @@ This is free software, licensed under:
 ```
 The Artistic License 2.0 (GPL Compatible)
 ```
+
+# POD ERRORS
+
+Hey! **The above document had some coding errors, which are explained below:**
+
+- Around line 183:
+
+    You forgot a '=back' before '=head2'
+
+- Around line 203:
+
+    You forgot a '=back' before '=head2'
+
+- Around line 230:
+
+    You forgot a '=back' before '=head2'
+
+- Around line 279:
+
+    You forgot a '=back' before '=head2'
+
+- Around line 326:
+
+    You forgot a '=back' before '=head2'
