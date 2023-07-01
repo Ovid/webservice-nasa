@@ -9,8 +9,9 @@ use DDP;
 my $data     = openapi();
 my $orig     = clone($data);
 my $resolved = preprocess_openapi($data);
-eq_or_diff $resolved, resolved(), 'Resolved all $ref entries and converted markdown to POD';
+is_deeply $resolved, resolved(), 'Resolved all $ref entries and converted markdown to POD';
 eq_or_diff $data, $orig, '... and the original data is unchanged';
+explain $resolved;
 
 done_testing;
 

@@ -6,8 +6,8 @@ Note: if we add examples for everything, our tests become problematic because
 some parameters are exclusive. Thus, we'll need to find a way to account for
 this. Something like `x-includes` and `x-excludes` in the OpenAPI?
 
-Don't pass API key to servers which don't use it
-
+* Don't pass API key to servers which don't use it
+* Make it easy to override methods names
 * Link to relevant schemas
 
 # APIs to Add

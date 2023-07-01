@@ -55,15 +55,24 @@ sub _recursively_find_references ( $components, $resolved ) {
         if ( exists $resolved->{description} ) {
             state $markdown = Markdown::Pod->new;
             unless ( ref $resolved->{description} ) {
+                my $description;
                 eval {
                     # if for some reason we cannot process this as markdown,
                     # leave it alone
-                    $resolved->{description} = $markdown->markdown_to_pod( markdown => $resolved->{description} );
-                }
+                    $description = $markdown->markdown_to_pod(
+                        encoding => 'utf8',
+                        markdown => $resolved->{description},
+                    );
+
+                    # Markdown::Pod adds this, but we don't want it because
+                    # we're creating snippets of POD, not the entire document
+                    $description =~ s/=encoding utf8\n\n//;
+                    $resolved->{description} = $description;
+                };
             }
 
             # markdown_to_pod adds a newline at the end
-            chomp $resolved->{description};
+            chomp $resolved->{description} if $resolved->{description};
         }
         foreach my $key ( sort keys $resolved->%* ) {
             my $item = $resolved->{$key};
