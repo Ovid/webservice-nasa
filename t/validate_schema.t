@@ -13,7 +13,7 @@ foreach my $openapi_spec (@files) {
     lives_ok {
         $schema = JSONSchema::Validator->new( resource => "file://$openapi" );
     }
-    'Creating our schema lived';
+    "Creating our schema lived for $openapi_spec";
 
     my $expected = [
         'components',
