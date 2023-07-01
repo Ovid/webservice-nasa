@@ -36,7 +36,6 @@ sub preprocess_openapi ($openapi) {
 
     # Don't delete components because they can refer to other components
     my $components = $cloned->{components};
-    $DB::single = 1;
     _recursively_find_references( $components, $cloned );
     return $cloned;
 }
@@ -62,7 +61,6 @@ sub _recursively_find_references ( $components, $resolved ) {
         }
         foreach my $key ( sort keys $resolved->%* ) {
             my $item = $resolved->{$key};
-        $DB::single = 1 if 'tags' eq $key;
             _recursively_find_references( $components, $item );
         }
     }
