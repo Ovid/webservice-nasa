@@ -54,7 +54,13 @@ sub _recursively_find_references ( $components, $resolved ) {
         }
         if ( exists $resolved->{description} ) {
             state $markdown = Markdown::Pod->new;
-            $resolved->{description} = $markdown->markdown_to_pod( markdown => $resolved->{description} );
+            unless ( ref $resolved->{description} ) {
+                eval {
+                    # if for some reason we cannot process this as markdown,
+                    # leave it alone
+                    $resolved->{description} = $markdown->markdown_to_pod( markdown => $resolved->{description} );
+                }
+            }
 
             # markdown_to_pod adds a newline at the end
             chomp $resolved->{description};

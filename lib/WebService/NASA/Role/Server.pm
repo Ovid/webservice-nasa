@@ -29,8 +29,6 @@ use File::Spec::Functions 'catfile';
 use Path::Tiny;
 use File::ShareDir 'dist_dir';
 
-with qw(WebService::NASA::Role::DelegatedParams);
-
 field is_timeout => (
     isa     => Bool,
     writer  => '_set_is_timeout',
@@ -46,7 +44,7 @@ field last_request_time => (
 field requests_remaining => (
     isa     => PositiveOrZeroInt | Undef,
     writer  => '_set_requests_remaining',
-    default => undef,
+    default => 1000,
 );
 
 field response => (
@@ -77,8 +75,11 @@ field _validator => (
         # we're in development mode. Otherwise, use the one in the dist
         my $schema
           = $self->_in_development_directory
-          ? path( catfile( 'nasa', 'openapi.yaml' ) )->absolute
-          : catfile( dist_dir('WebService-NASA'), 'openapi.yaml' );
+          ? path( catfile( 'nasa', $self->_schema_doc ) )->absolute
+          : catfile( dist_dir('WebService-NASA'), $self->_schema_doc );
+        if ( $self->debug ) {
+            say STDERR "Using schema: $schema";
+        }
         return JSONSchema::Validator->new( resource => "file://$schema" );
     },
 );
@@ -86,7 +87,7 @@ field _validator => (
 field _in_development_directory => (
     isa     => Bool,
     default => method() {
-        return ( -d 'nasa' && -e catfile( 'nasa', 'openapi.yaml' ) && -d '.git' );
+        return ( -d 'nasa' && -e catfile( 'nasa', $self->_schema_doc ) && -d '.git' );
     },
 );
 

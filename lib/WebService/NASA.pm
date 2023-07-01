@@ -3,7 +3,7 @@ package WebService::NASA;
 our $VERSION   = '0.1';          ## no critic (RequireUseStrict RequireUseWarnings)
 our $AUTHORITY = 'cpan:OVID';    ## no critic (RequireUseStrict RequireUseWarnings)
 
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 545ce08c33911612b43e9692ac9f9f71
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: a4dee7520347f856897eb7e43bbba474
 
 # ABSTRACT: Perl interface to NASA's public APIs
 
@@ -58,6 +58,21 @@ delegate(
         'get_planetary_earth_imagery',
     ],
     to   => 'api_nasa_gov_server',
+    args => 1,
+);
+
+field eonet_gsfc_nasa_gov_server => (
+    isa     => InstanceOf ['WebService::NASA::Server::EonetGsfcNasaGov'],
+    default => method() {
+        require WebService::NASA::Server::EonetGsfcNasaGov;
+        WebService::NASA::Server::EonetGsfcNasaGov->new( $self->_constructor_args )
+    },
+);
+delegate(
+    methods => [
+        'get_events',
+    ],
+    to   => 'eonet_gsfc_nasa_gov_server',
     args => 1,
 );
 
@@ -454,4 +469,109 @@ Required.
 The unofficial NASA OpenAPI specification can be found at
 L<https://github.com/Ovid/nasa-openapi>.
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 545ce08c33911612b43e9692ac9f9f71
+
+
+=head1 Server C<https://eonet.gsfc.nasa.gov/api/v3>
+
+Methods are delegated to L<WebService::NASA::Server::EonetGsfcNasaGov>.
+
+
+
+=head2 C<get_events>
+
+    my $result = $nasa->get_events(
+        bbox     => $bbox,
+        category => $category,
+        days     => $days,
+        end      => $end,
+        limit    => $limit,
+        magID    => $magID,
+        magMax   => $magMax,
+        magMin   => $magMin,
+        source   => $source,
+        start    => $start,
+        status   => $status,
+    );
+
+Method for C</events>.
+
+Returns a list of natural events currently occurring on Earth.
+
+Arguments:
+
+=over 4
+
+=item * C<bbox> 
+
+Query using a bounding box for all events with datapoints that fall within. This uses two pairs of coordinates: the upper left hand corner (lon,lat) followed by the lower right hand corner (lon,lat).
+
+Optional.
+
+=item * C<category> 
+
+Category of each earth event
+
+Optional.
+
+=item * C<days> 
+
+The maximum number of days to return
+
+Optional.
+
+=item * C<end> 
+
+The end date of the events
+
+Optional.
+
+=item * C<limit> 
+
+The maximum number of events to return
+
+Optional.
+
+=item * C<magID> 
+
+EONET Event Magnitudes
+
+Optional.
+
+=item * C<magMax> 
+
+The maximum magnitude of the events
+
+Optional.
+
+=item * C<magMin> 
+
+The minimum magnitude of the events
+
+Optional.
+
+=item * C<source> 
+
+Source of each earth event
+
+Optional.
+
+=item * C<start> 
+
+The start date of the events
+
+Optional.
+
+=item * C<status> 
+
+Status of each earth event
+
+Optional.
+
+=back
+
+=head1 SEE ALSO
+
+The unofficial NASA OpenAPI specification can be found at
+L<https://github.com/Ovid/nasa-openapi>.
+
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: a4dee7520347f856897eb7e43bbba474

@@ -3,23 +3,36 @@ package WebService::NASA::Server::ApiNasaGov;
 our $VERSION   = '0.1';          ## no critic (RequireUseStrict RequireUseWarnings)
 our $AUTHORITY = 'cpan:OVID';    ## no critic (RequireUseStrict RequireUseWarnings)
 
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 21f041d1eaa35215af5d7ec56618f367
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 445d9b04f02a28a3a2a642ee81dc1ccf
 
 # ABSTRACT: Perl interface to NASA's public APIs
 
 use v5.20.0;
 use WebService::NASA::Moose types => [
     qw(
+      ArrayRef
       NonEmptyStr
       Optional
     )
 ];
-with qw(WebService::NASA::Role::Server);
+
+# in theory, WebService::NASA::Role::Server can consume DelegateParams, but
+# but we're getting an error that these methods are not provided, even though
+# they are. It works with WebService::NASA::Server::ApiNasaGov, but not with
+# WebService::NASA::Server::EonetGsfcNasaGov. I don't know why.
+with qw(
+  WebService::NASA::Role::DelegatedParams
+  WebService::NASA::Role::Server
+);
 
 use PerlX::Maybe qw(maybe);
 use Type::Params -sigs;
 
 # Begin generated code here
+
+method _schema_doc() {
+    return 'api-nasa-gov/openapi.yaml';
+}
 
 signature_for get_neo_rest_v1_feed => (
     method => 1,
@@ -160,7 +173,6 @@ __END__
 =head1 SYNOPSIS
 
     use WebService::NASA::Server::ApiNasaGov
-
     my $api = WebService::NASA::Server::ApiNasaGov->new(
         api_key => 'your_api_key',
     );
@@ -175,8 +187,6 @@ a free API key there.
 
 =head1 METHODS
 
-To understand what is returned, please see L<WebService::NASA::Schema>.
-
 
 
 =head2 C<get_neo_rest_v1_feed>
@@ -187,6 +197,8 @@ To understand what is returned, please see L<WebService::NASA::Schema>.
     );
 
 Method for C</neo/rest/v1/feed>.
+
+To understand what is returned, please see L<WebService::NASA::Schema::ApiNasaGov>.
 
 Retrieve a list of Asteroids based on their closest approach date to Earth.
 
@@ -215,6 +227,8 @@ Optional.
 
 Method for C</neo/rest/v1/neo/{asteroidId}/>.
 
+To understand what is returned, please see L<WebService::NASA::Schema::ApiNasaGov>.
+
 Lookup a specific Asteroid based on its NASA JPL small body (SPK-ID) ID
 
 Arguments:
@@ -236,6 +250,8 @@ Required.
     );
 
 Method for C</neo/rest/v1/neo/browse>.
+
+To understand what is returned, please see L<WebService::NASA::Schema::ApiNasaGov>.
 
 Browse the overall Asteroid data-set
 
@@ -267,6 +283,8 @@ Optional.
     );
 
 Method for C</planetary/apod>.
+
+To understand what is returned, please see L<WebService::NASA::Schema::ApiNasaGov>.
 
 One of the most popular websites at NASA is the L<Astronomy Picture of the Day|https://apod.nasa.gov/apod/astropix.html>. In fact, this website is one of the L<most popular websites|https://analytics.usa.gov/> across all federal agencies. It has the popular appeal of a Justin Bieber video. This endpoint structures the APOD imagery and associated metadata so that it can be repurposed for other applications. In addition, if the C<concept_tags> parameter is set to C<True>, then keywords derived from the image explanation are returned. These keywords could be used as auto-generated hashtags for twitter or instagram feeds; but generally help with discoverability of relevant imagery.
 The full documentation for this API can be found in L<the APOD API Github repository|https://github.com/nasa/apod-api>.
@@ -317,6 +335,8 @@ Optional.
 
 Method for C</planetary/earth/assets>.
 
+To understand what is returned, please see L<WebService::NASA::Schema::ApiNasaGov>.
+
 This endpoint retrieves the date-times and asset names for closest
 available imagery for a supplied location and date. The satellite
 passes over each point on earth roughly once every sixteen days. L<This
@@ -365,6 +385,8 @@ Required.
     );
 
 Method for C</planetary/earth/imagery>.
+
+To understand what is returned, please see L<WebService::NASA::Schema::ApiNasaGov>.
 
 This endpoint retrieves the Landsat 8 image for the supplied location and
 date. The response will include the date and URL to the image that is
@@ -423,4 +445,4 @@ Required.
 The unofficial NASA OpenAPI specification can be found at
 L<https://github.com/Ovid/nasa-openapi>.
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 21f041d1eaa35215af5d7ec56618f367
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 445d9b04f02a28a3a2a642ee81dc1ccf

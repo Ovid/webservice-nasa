@@ -12,6 +12,7 @@ our @EXPORT_OK = qw( set_response );
 BEGIN {
     my @servers = qw(
       ApiNasaGov
+      EonetGsfcNasaGov
     );
 
     foreach my $server (@servers) {

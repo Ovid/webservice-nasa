@@ -7,7 +7,7 @@ use warnings;
 use Carp                    qw(croak);
 use Cpanel::JSON::XS        qw(encode_json);
 use File::Slurp             qw(read_file);
-use File::Spec::Functions   qw(catfile);
+use File::Spec::Functions   qw(catfile splitdir);
 use Path::Tiny              qw(path);
 use String::CamelSnakeKebab qw(
   lower_snake_case
@@ -79,7 +79,7 @@ method run() {
         $self->_set_current_server;
 
         $self->_write_schema_documentation($raw_yaml);
-        push @servers => $self->_write_webservice_nasa_server_module($resolved);
+        push @servers => $self->_write_webservice_nasa_server_module( $filename, $resolved );
     }
 
     my $template = $self->_template;
@@ -113,8 +113,11 @@ method _get_openapi_filenames() {
     return @files;
 }
 
-method _write_webservice_nasa_server_module($resolved) {
+method _write_webservice_nasa_server_module( $filename, $resolved ) {
     my @paths = sort keys $resolved->{paths}->%*;
+    my @dirs = splitdir($filename);
+    shift @dirs; # discard top-level 'nasa' directory
+    $filename = catfile(@dirs);
 
     my %endpoints;
     foreach my $path (@paths) {
@@ -139,7 +142,7 @@ method _write_webservice_nasa_server_module($resolved) {
                 say STDERR perl_to_string($parameters);
                 Carp::confess("No name for $path");
             };
-            say STDERR perl_to_string($parameters) if $self->debug;
+            say STDERR perl_to_string($parameters) if $self->debug > 1;
             next PARAMETER                         if $name eq 'api_key';
             if ( exists( $endpoints{$method_name}{parameters}{$name} ) ) {
                 croak("Duplicate parameters name '$name' for $path");
@@ -157,6 +160,8 @@ method _write_webservice_nasa_server_module($resolved) {
             endpoints    => \%endpoints,
             server_class => $server_name,
             server       => $self->_current_server_url,
+            security     => $resolved->{components}{securitySchemes} ? 1 : 0,
+            schema_doc   => $filename,
         },
         \my $output
     ) or die $template->error;
