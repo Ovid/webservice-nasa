@@ -17,7 +17,6 @@ this. Something like `x-includes` and `x-excludes` in the OpenAPI?
 * EPIC: Earth Polychromatic Imaging Camera
 * Exoplanet: Programmatic access to NASA's Exoplanet Archive database
 * GeneLab: Programmatic interface for GeneLab's public data repository website
-* Insight: Mars Weather Service API
 * Mars Rover Photos: Image data gathered by NASA's Curiosity, Opportunity, and Spirit rovers on Mars
 * NASA Image and Video Library: API to access the NASA Image and Video Library site at images.nasa.gov
 * TechTransfer: Patents, Software, and Tech Transfer Reports
@@ -36,3 +35,10 @@ this. Something like `x-includes` and `x-excludes` in the OpenAPI?
 * Earth: Unlock the significant public investment in earth observation data
 	* /planetary/earth/assets
 	* /planetary/earth/imagery
+
+# Problems
+
+* Insight: Mars Weather Service API
+
+This one is listed, but it appears to be dead. Insight stopped serving data
+bak in 2020.

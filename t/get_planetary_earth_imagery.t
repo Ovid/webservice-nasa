@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: d6b20d83d170a9a29af9970c5a4d69a3
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 2dab57db7634a773419a507e99db6efa
 
 # Because the NASA services can be unreliable, we use a local cache of
 # the response. This test is primarily to validate that our OpenAPI spec is
@@ -25,9 +25,7 @@ subtest 'Validate Response via OpenAPI' => sub {
     set_response( default() );
     my $response;
     lives_ok {
-        $response = $nasa->get_planetary_earth_imagery(
-            date => '2018-01-01', lat => '1.5', lon => '100.75',
-        );
+        $response = $nasa->get_planetary_earth_imagery( date => '2018-01-01', lat => '1.5', lon => '100.75', );
     }
     'get_planetary_earth_imagery survived OpenAPI validation';
 
@@ -65,6 +63,6 @@ pretend this is binary content
 END
 }
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: d6b20d83d170a9a29af9970c5a4d69a3
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 2dab57db7634a773419a507e99db6efa
 
 done_testing;

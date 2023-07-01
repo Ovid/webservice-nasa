@@ -215,7 +215,10 @@ method _write_test_for_method( $method_name, $endpoint ) {
     }
     my $content_type     = $content_types[0];
     my $response_content = $endpoint->{full}{responses}{200}{content}{$content_type};
-    my $response_example = $response_content->{example};
+    my $x_test           = $response_content->{'x-test'};
+
+    # eventually we'll want mulitple examples, but for now, we'll just use one
+    my $response_example = $x_test ? $x_test->[0]{response}{expected} : $response_content->{example};
 
     # ok, we didn't have a single example, but we have might have multiple
     # examples. APOD does this because it might return a list of objects or
@@ -258,6 +261,7 @@ method _write_test_for_method( $method_name, $endpoint ) {
             content_type      => $content_type,
             content_length    => length($body),
             parameters        => $parameters,
+            x_test            => $x_test->[0],
         },
         \my $output
     ) or die $template->error;
