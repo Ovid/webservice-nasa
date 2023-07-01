@@ -11,14 +11,15 @@ use WebService::NASA::Test qw( set_response );
 
 my $nasa = WebService::NASA->new;
 
-my $response = [% x_test.response_name %]();
-my $limit_remaining;
-if ( $response =~ /X-Ratelimit-Remaining: (\d+)/ ) {
-    $limit_remaining = $1;
-}
-
+[%- FOREACH x_test IN x_tests -%]
 subtest '[% x_test.name %]' => sub {
-    set_response( $response );
+    my $[% x_test.response_name %] = [% x_test.response_name %]();
+    my $limit_remaining;
+    if ( $[% x_test.response_name %] =~ /X-Ratelimit-Remaining: (\d+)/ ) {
+        $limit_remaining = $1;
+    }
+
+    set_response( $[% x_test.response_name %] );
     my $response; 
     lives_ok { 
         $response = $nasa->[% method %](
@@ -62,3 +63,4 @@ X-XSS-Protection: 1; mode=block
 [% body %]
 END
 }
+[%- END -%]

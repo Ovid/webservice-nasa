@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: bebef8a72248b37b47b82465fc6e7b71
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: db0e20d6150c954e74d30488a4096b11
 
 # Because the NASA services can be unreliable, we use a local cache of
 # the response. This test is primarily to validate that our OpenAPI spec is
@@ -14,15 +14,14 @@ use Test::Most;
 use WebService::NASA::Test qw( set_response );
 
 my $nasa = WebService::NASA->new;
-
-my $response = get_assets_for_a_location();
-my $limit_remaining;
-if ( $response =~ /X-Ratelimit-Remaining: (\d+)/ ) {
-    $limit_remaining = $1;
-}
-
 subtest 'get assets for a location' => sub {
-    set_response($response);
+    my $get_assets_for_a_location = get_assets_for_a_location();
+    my $limit_remaining;
+    if ( $get_assets_for_a_location =~ /X-Ratelimit-Remaining: (\d+)/ ) {
+        $limit_remaining = $1;
+    }
+
+    set_response($get_assets_for_a_location);
     my $response;
     lives_ok {
         $response = $nasa->get_planetary_earth_assets(
@@ -75,6 +74,6 @@ X-XSS-Protection: 1; mode=block
 END
 }
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: bebef8a72248b37b47b82465fc6e7b71
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: db0e20d6150c954e74d30488a4096b11
 
 done_testing;

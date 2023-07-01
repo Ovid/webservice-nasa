@@ -269,7 +269,7 @@ method _write_test_for_method( $method_name, $endpoint ) {
             content_type      => $content_type,
             content_length    => length($body),
             parameters        => $parameters,
-            x_test            => $x_test->[0],
+            x_tests           => $x_test,
         },
         \my $output
     ) or die $template->error;

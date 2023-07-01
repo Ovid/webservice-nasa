@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: ec9be9672bdfd1eaf68c3ff684d43cd5
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: 8adc8aeb01552724e398fe9a3f9d801a
 
 # Because the NASA services can be unreliable, we use a local cache of
 # the response. This test is primarily to validate that our OpenAPI spec is
@@ -14,15 +14,14 @@ use Test::Most;
 use WebService::NASA::Test qw( set_response );
 
 my $nasa = WebService::NASA->new;
-
-my $response = get_apod_by_date();
-my $limit_remaining;
-if ( $response =~ /X-Ratelimit-Remaining: (\d+)/ ) {
-    $limit_remaining = $1;
-}
-
 subtest 'get APOD by date' => sub {
-    set_response($response);
+    my $get_apod_by_date = get_apod_by_date();
+    my $limit_remaining;
+    if ( $get_apod_by_date =~ /X-Ratelimit-Remaining: (\d+)/ ) {
+        $limit_remaining = $1;
+    }
+
+    set_response($get_apod_by_date);
     my $response;
     lives_ok {
         $response = $nasa->get_planetary_apod(
@@ -87,6 +86,6 @@ X-XSS-Protection: 1; mode=block
 END
 }
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: ec9be9672bdfd1eaf68c3ff684d43cd5
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: 8adc8aeb01552724e398fe9a3f9d801a
 
 done_testing;

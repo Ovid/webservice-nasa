@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: a9f80d46a25740a9a0a489374236cc5e
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: de04c3367ef853fc6ac3a8436c6699e0
 
 # Because the NASA services can be unreliable, we use a local cache of
 # the response. This test is primarily to validate that our OpenAPI spec is
@@ -14,15 +14,14 @@ use Test::Most;
 use WebService::NASA::Test qw( set_response );
 
 my $nasa = WebService::NASA->new;
-
-my $response = get_neo_rest_feed();
-my $limit_remaining;
-if ( $response =~ /X-Ratelimit-Remaining: (\d+)/ ) {
-    $limit_remaining = $1;
-}
-
 subtest 'get neo rest feed' => sub {
-    set_response($response);
+    my $get_neo_rest_feed = get_neo_rest_feed();
+    my $limit_remaining;
+    if ( $get_neo_rest_feed =~ /X-Ratelimit-Remaining: (\d+)/ ) {
+        $limit_remaining = $1;
+    }
+
+    set_response($get_neo_rest_feed);
     my $response;
     lives_ok {
         $response = $nasa->get_neo_rest_v1_feed();
@@ -1301,6 +1300,6 @@ X-XSS-Protection: 1; mode=block
 END
 }
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: a9f80d46a25740a9a0a489374236cc5e
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: de04c3367ef853fc6ac3a8436c6699e0
 
 done_testing;
