@@ -8,6 +8,7 @@ this. Something like `x-includes` and `x-excludes` in the OpenAPI?
 
 * Don't pass API key to servers which don't use it
 * Make it easy to override methods names
+* Generate WebService::NASA::Test with server names
 * Link to relevant schemas
 
 # APIs to Add
