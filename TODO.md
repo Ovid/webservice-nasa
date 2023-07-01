@@ -10,6 +10,7 @@ this. Something like `x-includes` and `x-excludes` in the OpenAPI?
 * Make it easy to override methods names
 * Generate WebService::NASA::Test with server names
 * Link to relevant schemas
+* POD errors in README.md
 
 # APIs to Add
 
