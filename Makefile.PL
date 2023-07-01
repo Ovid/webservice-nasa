@@ -65,7 +65,6 @@ my %WriteMakefileArgs = (
     "warnings" => 0
   },
   "TEST_REQUIRES" => {
-    "DDP" => 0,
     "ExtUtils::MakeMaker" => 0,
     "File::Spec" => 0,
     "Test::More" => 0,
@@ -85,7 +84,6 @@ my %FallbackPrereqs = (
   "Clone" => 0,
   "CodeGen::Protection" => 0,
   "Cpanel::JSON::XS" => 0,
-  "DDP" => 0,
   "Data::Dumper" => 0,
   "Exporter" => 0,
   "ExtUtils::MakeMaker" => 0,

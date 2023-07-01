@@ -379,7 +379,7 @@ Arguments:
 The unofficial NASA OpenAPI specification can be found at
 [https://github.com/Ovid/nasa-openapi](https://github.com/Ovid/nasa-openapi).
 
-# Server `https://eonet.gsfc.nasa.gov/api/v3/`
+# Server `https://eonet.gsfc.nasa.gov/api/v3`
 
 Methods are delegated to [WebService::NASA::Server::EonetGsfcNasaGov](https://metacpan.org/pod/WebService%3A%3ANASA%3A%3AServer%3A%3AEonetGsfcNasaGov).
 
@@ -478,7 +478,7 @@ Arguments:
 The unofficial NASA OpenAPI specification can be found at
 [https://github.com/Ovid/nasa-openapi](https://github.com/Ovid/nasa-openapi).
 
-\#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: c16f9aadede5d0b5171ea1a9df93c1c4
+\#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: a4dee7520347f856897eb7e43bbba474
 
 # AUTHOR
 
