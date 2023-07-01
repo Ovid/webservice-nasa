@@ -11,14 +11,14 @@ use WebService::NASA::Test qw( set_response );
 
 my $nasa = WebService::NASA->new;
 
-my $default_response = default();
+my $response = [% x_test.response_name %]();
 my $limit_remaining;
-if ( $default_response =~ /X-Ratelimit-Remaining: (\d+)/ ) {
+if ( $response =~ /X-Ratelimit-Remaining: (\d+)/ ) {
     $limit_remaining = $1;
 }
 
 subtest 'Validate Response via OpenAPI' => sub {
-    set_response( default() );
+    set_response( $response );
     my $response; 
     lives_ok { 
         $response = $nasa->[% method %](
@@ -39,7 +39,7 @@ subtest 'Validate Response via OpenAPI' => sub {
     is $response->requests_remaining, $limit_remaining, 'requests_remaining matches headers';
 };
 
-sub default {
+sub [% x_test.response_name %] {
     return <<'END';
 HTTP/1.1 200 OK
 Access-Control-Allow-Origin: *

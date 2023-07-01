@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: b0544e8f48b05ba2de629642a09d8b3d
+#<<< CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the end comment. Checksum: aaa60dbf3eea626e901040001d2f2083
 
 # Because the NASA services can be unreliable, we use a local cache of
 # the response. This test is primarily to validate that our OpenAPI spec is
@@ -15,14 +15,14 @@ use WebService::NASA::Test qw( set_response );
 
 my $nasa = WebService::NASA->new;
 
-my $default_response = default();
+my $response = get_random_asteroid();
 my $limit_remaining;
-if ( $default_response =~ /X-Ratelimit-Remaining: (\d+)/ ) {
+if ( $response =~ /X-Ratelimit-Remaining: (\d+)/ ) {
     $limit_remaining = $1;
 }
 
 subtest 'Validate Response via OpenAPI' => sub {
-    set_response( default() );
+    set_response($response);
     my $response;
     lives_ok {
         $response = $nasa->get_neo_rest_v1_neo_asteroidid(
@@ -4896,7 +4896,7 @@ subtest 'Validate Response via OpenAPI' => sub {
     is $response->requests_remaining, $limit_remaining, 'requests_remaining matches headers';
 };
 
-sub default {
+sub get_random_asteroid {
     return <<'END';
 HTTP/1.1 200 OK
 Access-Control-Allow-Origin: *
@@ -4920,6 +4920,6 @@ X-XSS-Protection: 1; mode=block
 END
 }
 
-#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: b0544e8f48b05ba2de629642a09d8b3d
+#>>> CodeGen::Protection::Format::Perl 0.06. Do not touch any code between this and the start comment. Checksum: aaa60dbf3eea626e901040001d2f2083
 
 done_testing;
