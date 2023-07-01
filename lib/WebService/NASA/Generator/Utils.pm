@@ -71,7 +71,7 @@ sub _resolve_reference ( $components, $ref ) {
     return $components->{$type}{$name} || croak "Could not resolve $ref";
 }
 
-sub make_method_name ($string, $prefix='') {
+sub make_method_name ( $string, $prefix = '' ) {
     $string = trim( lc($string) );
     $string =~ s/[{}]//g;
     $string =~ s/\s+/_/g;

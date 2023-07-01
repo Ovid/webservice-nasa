@@ -118,7 +118,7 @@ method _write_webservice_nasa_server_module($resolved) {
 
     my %endpoints;
     foreach my $path (@paths) {
-        my $method_name = make_method_name($path, 'get');
+        my $method_name = make_method_name( $path, 'get' );
         if ( $self->debug ) {
             say "Gathering data for method: $method_name";
         }
@@ -221,8 +221,8 @@ method _write_test_for_method( $method_name, $endpoint ) {
         warn "No x-test for $path. No test created.";
         return;
     }
-    foreach my $test ($x_test->@*) {
-        $test->{response_name} = make_method_name($test->{name});
+    foreach my $test ( $x_test->@* ) {
+        $test->{response_name} = make_method_name( $test->{name} );
     }
 
     # eventually we'll want mulitple examples, but for now, we'll just use one
