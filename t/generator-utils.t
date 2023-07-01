@@ -5,13 +5,11 @@ use lib 'lib';
 use Clone 'clone';
 use WebService::NASA::Generator::Utils qw(preprocess_openapi perl_to_string);
 
-use DDP;
 my $data     = openapi();
 my $orig     = clone($data);
 my $resolved = preprocess_openapi($data);
-is_deeply $resolved, resolved(), 'Resolved all $ref entries and converted markdown to POD';
+eq_or_diff $resolved, resolved(), 'Resolved all $ref entries and converted markdown to POD';
 eq_or_diff $data, $orig, '... and the original data is unchanged';
-explain $resolved;
 
 done_testing;
 
